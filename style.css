@@ -1,3 +1,23 @@
 .container ( /*class container*/
     display:flex; /*boxes go sideways*/
 )
+
+#myBox {
+      width: 25%;
+      height: 100px;
+      background-color: rgb(61, 123, 255);
+      text-align: center;
+      line-height: 150px;
+      font-weight: bold;
+      transition: background-color 0.3s;
+      cursor: pointer;
+      /* remove box margins */
+      margin: 0;
+    }
+
+    #myBox:hover {
+      background-color: rgb(0, 81, 255);
+    }
+    #myBox.active {
+      background-color: rgb(0, 81, 255);
+  }
