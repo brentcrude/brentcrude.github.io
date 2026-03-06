@@ -1,6 +1,6 @@
-.container ( /*class container*/
-    display:flex; /*boxes go sideways*/
-)
+.container { /*class container*/
+    display: flex; /*boxes go sideways*/
+}
 
 #myBox {
       width: 25%;
