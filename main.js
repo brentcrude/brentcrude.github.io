@@ -1,24 +1,41 @@
-import * as constants from "./secret.js";
-import * as helpers from "./helpers.js";
+// passwords and content for each level
+const passwords = ["sayby", "inner123", "topsecret"];
+const secrets = [
+  `<h2>Base Secret</h2><p>This is the first level secret.</p>`,
+  `<h2>Inner Secret</h2><p>This is the second level secret!</p>`,
+  `<h2>Top Secret</h2><p>You’ve reached the final secret!</p>`
+];
 
-let baseCorrect = false;
+let currentLevel = 0; // start at base level
 
-// wait until DOM is fully loaded
 window.addEventListener("DOMContentLoaded", () => {
-  const BaseButton = document.getElementById("BaseButton");
-  const BaseInput = document.getElementById("BaseCLR");
+  const input = document.getElementById("BaseCLR");
+  const button = document.getElementById("BaseButton");
+  const secretContainer = document.getElementById("secretContainer");
 
-  BaseButton.addEventListener("click", () => {
-    const pwdInBase = BaseInput.value.trim(); // trim spaces
+  button.addEventListener("click", () => {
+    const pwd = input.value.trim();
 
-    if (helpers.checkPassword(pwdInBase, constants.BASECLRPWD)) {
-      alert("Access granted!");
-      baseCorrect = true;
+    if (pwd === passwords[currentLevel]) {
+      alert(`Level ${currentLevel + 1} unlocked!`);
+
+      // show the corresponding secret
+      secretContainer.innerHTML = secrets[currentLevel];
+      secretContainer.style.display = "block";
+
+      // advance to next level
+      currentLevel++;
+
+      // reset input
+      input.value = "";
+
+      if (currentLevel >= passwords.length) {
+        alert("All secrets unlocked!");
+        button.disabled = true; // optional: stop further input
+      }
+
     } else {
       alert("Wrong password!");
-      baseCorrect = false;
     }
-
-    console.log("Access granted:", baseCorrect);
   });
 });
