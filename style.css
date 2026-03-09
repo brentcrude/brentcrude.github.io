@@ -1,6 +1,5 @@
 .navbar { /*class container*/
     display: flex; /*boxes go sideways*/
-    flex: 1;
 }
 
 .navBox {
