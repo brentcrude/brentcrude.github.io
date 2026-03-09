@@ -6,7 +6,7 @@ export let baseCorrect = false;
 const BaseButton = document.getElementById("BaseButton");
 
 BaseButton.addEventListener("click", () => {
-  const pwdInBase = document.getElementById("BaseCLR").value;
+  const pwdInBase = document.getElementById("BaseCLR").value.trim();
 
   if (helpers.checkPassword(pwdInBase, constants.BASECLRPWD)) {
     alert("Access granted!");
