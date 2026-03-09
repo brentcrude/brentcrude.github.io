@@ -3,6 +3,7 @@
 }
 
 #myBox {
+      display: flex;
       width: 25%;
       height: 50px;
       background-color: rgb(61, 123, 255);
