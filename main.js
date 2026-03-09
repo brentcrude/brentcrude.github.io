@@ -1,18 +1,24 @@
 import * as constants from "./secret.js";
 import * as helpers from "./helpers.js";
 
-export let baseCorrect = false;
+let baseCorrect = false;
 
-const BaseButton = document.getElementById("BaseButton");
+// wait until DOM is fully loaded
+window.addEventListener("DOMContentLoaded", () => {
+  const BaseButton = document.getElementById("BaseButton");
+  const BaseInput = document.getElementById("BaseCLR");
 
-BaseButton.addEventListener("click", () => {
-  const pwdInBase = document.getElementById("BaseCLR").value.trim();
+  BaseButton.addEventListener("click", () => {
+    const pwdInBase = BaseInput.value.trim(); // trim spaces
 
-  if (helpers.checkPassword(pwdInBase, constants.BASECLRPWD)) {
-    alert("Access granted!");
-    baseCorrect = true;
-  } else {
-    alert("Wrong password!");
-    baseCorrect = false;
-  }
+    if (helpers.checkPassword(pwdInBase, constants.BASECLRPWD)) {
+      alert("Access granted!");
+      baseCorrect = true;
+    } else {
+      alert("Wrong password!");
+      baseCorrect = false;
+    }
+
+    console.log("Access granted:", baseCorrect);
+  });
 });
