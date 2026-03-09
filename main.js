@@ -13,4 +13,3 @@ BaseButton.addEventListener("click", () => {
     baseCorrect = false;
   }
 });
-
