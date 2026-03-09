@@ -1,11 +1,12 @@
-// main.js
+// Passwords for each level
 const passwords = ["sayby", "inner123", "topsecret"];
 const secrets = [
-  `<h2>Base Secret</h2><p>This is level 1 secret.</p>`,
-  `<h2>Inner Secret</h2><p>This is level 2 secret.</p>`,
-  `<h2>Top Secret</h2><p>Top-level secret unlocked! Enter virtual URL below.</p>`
+  `<h2>Base Secret</h2><p>Level 1 secret content.</p>`,
+  `<h2>Inner Secret</h2><p>Level 2 secret content.</p>`,
+  `<h2>Top Secret</h2><p>Top-level unlocked! Enter virtual URL below.</p>`
 ];
 
+// Virtual pages for top-level secret
 const virtualPages = {
   "/dashboard": "<h3>Dashboard</h3><p>Stats appear here.</p>",
   "/settings": "<h3>Settings</h3><p>Adjust your preferences.</p>",
@@ -21,20 +22,20 @@ window.addEventListener("DOMContentLoaded", () => {
 
   button.addEventListener("click", () => {
     const pwd = input.value.trim();
-    container.innerHTML = ""; // clear previous content
 
     if (pwd === passwords[currentLevel]) {
       alert(`Level ${currentLevel + 1} unlocked!`);
-
+      
+      container.innerHTML = ""; // clear previous secret
       const secretDiv = document.createElement("div");
       secretDiv.classList.add("secret", "show");
       secretDiv.innerHTML = secrets[currentLevel];
       container.appendChild(secretDiv);
 
-      currentLevel++;
-      input.value = "";
+      input.value = "";       // clear input
+      currentLevel++;         // move to next level
 
-      // if top-level, add URL input and button dynamically
+      // top-level unlock adds URL input dynamically
       if (currentLevel === passwords.length) {
         const urlInput = document.createElement("input");
         urlInput.id = "urlInput";
@@ -53,13 +54,13 @@ window.addEventListener("DOMContentLoaded", () => {
         secretDiv.appendChild(urlButton);
         secretDiv.appendChild(urlContent);
 
-        // attach listener **after creating the elements**
         urlButton.addEventListener("click", () => {
           const virtualUrl = urlInput.value.trim();
           urlContent.innerHTML =
             virtualPages[virtualUrl] || `<p>404: Page not found</p>`;
         });
       }
+
     } else {
       alert("Wrong password!");
     }
