@@ -1,10 +1,13 @@
 import * as constants from "./secret.js";
 import * as helpers from "./helpers.js";
+
 export let baseCorrect = false;
+
 const BaseButton = document.getElementById("BaseButton");
 
 BaseButton.addEventListener("click", () => {
-  const pwdInBase = document.getElementById("BaseCLR");  
+  const pwdInBase = document.getElementById("BaseCLR").value;
+
   if (helpers.checkPassword(pwdInBase, constants.BASECLRPWD)) {
     alert("Access granted!");
     baseCorrect = true;
