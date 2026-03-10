@@ -21,7 +21,7 @@
     .navBox.active {
       background-color: rgb(238, 0, 255);
       font-weight: bold;
-  }
+    }
 
 .secret {
   display: none;
