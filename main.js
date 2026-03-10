@@ -21,7 +21,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const container = document.getElementById("secretContainer");
 
   button.addEventListener("click", () => {
-    const pwd = input.value.trim();
+    const pwd = input.value.trim(); // ✅ important!
 
     if (pwd === passwords[currentLevel]) {
       alert(`Level ${currentLevel + 1} unlocked!`);
