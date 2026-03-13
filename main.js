@@ -16,10 +16,9 @@ const virtualPages = {
 let currentLevel = 0;
 
 window.addEventListener("DOMContentLoaded", () => {
-  const input = document.getElementById("BaseCLR");
-  const button = document.getElementById("BaseButton");
-  const container = document.getElementById("secretContainer");
-
+  const input = document.getElementById("pwdIn");
+  const button = document.getElementById("checkPwd");
+  const container = document.getElementById("displayBuffer");
   button.addEventListener("click", () => {
     const pwd = input.value.trim(); // ✅ important!
 
@@ -27,6 +26,7 @@ window.addEventListener("DOMContentLoaded", () => {
       alert(`Level ${currentLevel + 1} unlocked!`);
       
       container.innerHTML = ""; // clear previous secret
+      container.style.display = "block";
       const secretDiv = document.createElement("div");
       secretDiv.classList.add("secret", "show");
       secretDiv.innerHTML = secrets[currentLevel];
