@@ -1,6 +1,6 @@
 const passwords = ["sayby", "inner123", "topsecret"];
 const secrets = [
-  `<h2>Base Secret</h2><p>Level 1 secret content.</p>`,
+  `<h2>Level 1a</h2><p>Welcome ${document.getElementById("username").value.trim()}</p><p>Type 1b Password To Continue</p>`,
   `<h2>Inner Secret</h2><p>Level 2 secret content.</p>`,
   `<h2>Top Secret</h2><p>Top-level unlocked! Enter virtual URL below.</p>`
 ];
