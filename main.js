@@ -1,6 +1,6 @@
 const passwords = ["sayby", "inner123", "topsecret"];
 const secrets = [
-  `<h2>Level 1a</h2><p>Welcome ${document.getElementById("username").value.trim()}</p><p>Type 1b Password To Continue</p>`,
+  `<h2>Base Secret</h2><p>Level 1 secret content.</p>`,
   `<h2>Inner Secret</h2><p>Level 2 secret content.</p>`,
   `<h2>Top Secret</h2><p>Top-level unlocked! Enter virtual URL below.</p>`
 ];
@@ -10,6 +10,8 @@ const virtualPages = {
   "/settings": "<h3>Settings</h3><p>Adjust your preferences.</p>",
   "/profile": "<h3>Profile</h3><p>User info.</p>"
 };
+
+const CORS_PROXY = "https://corsproxy.io/?";
 
 let currentLevel = 0;
 
@@ -64,7 +66,7 @@ window.addEventListener("DOMContentLoaded", () => {
             const fullUrl = raw.startsWith("http") ? raw : "https://" + raw;
             try {
               urlContent.innerHTML = `<p>Loading...</p>`;
-              const res = await fetch(fullUrl);
+              const res = await fetch(CORS_PROXY + encodeURIComponent(fullUrl));
               if (!res.ok) throw new Error(`HTTP ${res.status}`);
               const text = await res.text();
               urlContent.innerHTML = text;
