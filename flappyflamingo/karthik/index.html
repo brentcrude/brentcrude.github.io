@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Karthik AB</title>
+    <title>Karthik AB Game</title>
     <style>
         body {
             display: flex;
@@ -261,8 +261,15 @@
             console.log('Points:', points);
             console.log('High Scores:', highScores);
             
+            saveHighScores();
+            
             alert('Game Over!\nUsername: ' + currentUsername + '\nPoints: ' + points + '\nHigh Score: ' + highScores[currentUsername]);
-            location.reload();
+            
+            document.getElementById('game-container').style.display = 'none';
+            document.getElementById('username-section').style.display = 'block';
+            document.getElementById('username-input').value = '';
+            document.body.classList.remove('bg-green', 'bg-red');
+            document.body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
         }
         
         initializeWeights();
