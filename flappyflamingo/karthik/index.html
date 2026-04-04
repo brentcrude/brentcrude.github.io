@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Karthik AB Game</title>
+    <title>Karthik AB</title>
     <style>
         body {
             display: flex;
@@ -130,19 +130,31 @@
     </style>
 </head>
 <body>
-    <div id="timer">Time: 0s</div>
-    <div id="stats">Points: 0</div>
-    <div id="letter">A</div>
-    <div class="button-group">
-        <button onclick="answerRight()">Right</button>
-        <button onclick="answerWrong()">Wrong</button>
+    <div id="username-section">
+        <h1>Enter Username</h1>
+        <input type="text" id="username-input" placeholder="Your username">
+        <button onclick="startGame()">Start Game</button>
+        <div id="high-score"></div>
+    </div>
+    
+    <div id="game-container">
+        <div id="timer">Time: 120s</div>
+        <div id="stats">Points: 0</div>
+        <div id="letter">A</div>
+        <div class="button-group">
+            <button onclick="answerRight()">Right</button>
+            <button onclick="answerWrong()">Wrong</button>
+        </div>
     </div>
     
     <script>
         let points = 0;
-        let seconds = 0;
+        let seconds = 120;
         let timerInterval;
         let letterWeights = {};
+        let currentUsername = '';
+        let gameActive = false;
+        const highScores = {};
         
         function initializeWeights() {
             const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
@@ -153,6 +165,7 @@
         
         function generateLetter() {
             const letters = Object.keys(letterWeights);
+            if (letters.length === 0) return;
             const totalWeight = letters.reduce((sum, letter) => sum + letterWeights[letter], 0);
             let random = Math.random() * totalWeight;
             
@@ -167,6 +180,7 @@
         }
         
         function answerRight() {
+            if (!gameActive) return;
             points++;
             document.getElementById('stats').textContent = 'Points: ' + points;
             const currentLetter = document.getElementById('letter').textContent;
@@ -175,6 +189,7 @@
         }
         
         function answerWrong() {
+            if (!gameActive) return;
             const currentLetter = document.getElementById('letter').textContent;
             letterWeights[currentLetter] *= 1.5;
             generateLetter();
@@ -182,14 +197,54 @@
         
         function startTimer() {
             timerInterval = setInterval(function() {
-                seconds++;
+                seconds--;
                 document.getElementById('timer').textContent = 'Time: ' + seconds + 's';
+                if (seconds <= 0) {
+                    endGame();
+                }
             }, 1000);
         }
         
-        // Generate a random letter on page load and start timer
-        generateLetter();
-        startTimer();
+        function startGame() {
+            currentUsername = document.getElementById('username-input').value.trim();
+            if (!currentUsername) {
+                alert('Please enter a username');
+                return;
+            }
+            
+            document.getElementById('username-section').style.display = 'none';
+            document.getElementById('game-container').style.display = 'flex';
+            document.getElementById('game-container').style.flexDirection = 'column';
+            document.getElementById('game-container').style.justifyContent = 'center';
+            document.getElementById('game-container').style.alignItems = 'center';
+            
+            gameActive = true;
+            points = 0;
+            seconds = 120;
+            letterWeights = {};
+            initializeWeights();
+            generateLetter();
+            startTimer();
+        }
+        
+        function endGame() {
+            gameActive = false;
+            clearInterval(timerInterval);
+            
+            if (!highScores[currentUsername] || points > highScores[currentUsername]) {
+                highScores[currentUsername] = points;
+            }
+            
+            console.log('Game Over!');
+            console.log('Username:', currentUsername);
+            console.log('Points:', points);
+            console.log('High Scores:', highScores);
+            
+            alert('Game Over!\nUsername: ' + currentUsername + '\nPoints: ' + points + '\nHigh Score: ' + highScores[currentUsername]);
+            location.reload();
+        }
+        
+        initializeWeights();
     </script>
 </body>
 </html>
