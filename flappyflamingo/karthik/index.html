@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Random Letter</title>
+    <title>Karthik AB Game</title>
     <style>
         body {
             display: flex;
@@ -14,6 +14,15 @@
             margin: 0;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             font-family: Arial, sans-serif;
+            transition: background-color 0.3s;
+        }
+        
+        body.bg-green {
+            background: #4caf50;
+        }
+        
+        body.bg-red {
+            background: #f44336;
         }
         
         #letter {
@@ -22,6 +31,19 @@
             color: white;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
             margin-bottom: 30px;
+        }
+        
+        #feedback {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 80px;
+            font-weight: bold;
+            color: white;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
         }
         
         button {
@@ -62,10 +84,48 @@
             font-weight: bold;
         }
         
+        #username-section {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 10;
+        }
+        
+        #username-section h1 {
+            color: white;
+            margin-bottom: 20px;
+        }
+        
+        #username-input {
+            padding: 10px;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            width: 200px;
+            margin-bottom: 20px;
+        }
+        
+        #username-section button {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+        
+        #high-score {
+            color: white;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        
         .button-group {
             display: flex;
             gap: 20px;
             margin-top: 30px;
+        }
+        
+        #game-container {
+            display: none;
         }
     </style>
 </head>
@@ -82,20 +142,41 @@
         let points = 0;
         let seconds = 0;
         let timerInterval;
+        let letterWeights = {};
+        
+        function initializeWeights() {
+            const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+            letters.forEach(letter => {
+                letterWeights[letter] = 1;
+            });
+        }
         
         function generateLetter() {
-            const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            const randomIndex = Math.floor(Math.random() * letters.length);
-            document.getElementById('letter').textContent = letters[randomIndex];
+            const letters = Object.keys(letterWeights);
+            const totalWeight = letters.reduce((sum, letter) => sum + letterWeights[letter], 0);
+            let random = Math.random() * totalWeight;
+            
+            for (let letter of letters) {
+                random -= letterWeights[letter];
+                if (random <= 0) {
+                    document.getElementById('letter').textContent = letter;
+                    return;
+                }
+            }
+            document.getElementById('letter').textContent = letters[0];
         }
         
         function answerRight() {
             points++;
             document.getElementById('stats').textContent = 'Points: ' + points;
+            const currentLetter = document.getElementById('letter').textContent;
+            letterWeights[currentLetter] = Math.max(1, letterWeights[currentLetter] * 0.8);
             generateLetter();
         }
         
         function answerWrong() {
+            const currentLetter = document.getElementById('letter').textContent;
+            letterWeights[currentLetter] *= 1.5;
             generateLetter();
         }
         
