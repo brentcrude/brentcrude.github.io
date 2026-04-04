@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Karthik AB</title>
+    <title>Karthik AB Game</title>
     <style>
         body {
             display: flex;
@@ -138,7 +138,7 @@
     </div>
     
     <div id="game-container">
-        <div id="timer">Time: 120s</div>
+        <div id="timer">Time: 60s</div>
         <div id="stats">Points: 0</div>
         <div id="letter">A</div>
         <div class="button-group">
@@ -149,12 +149,23 @@
     
     <script>
         let points = 0;
-        let seconds = 120;
+        let seconds = 60;
         let timerInterval;
         let letterWeights = {};
         let currentUsername = '';
         let gameActive = false;
-        const highScores = {};
+        let highScores = {};
+        
+        function loadHighScores() {
+            const stored = localStorage.getItem('highScores');
+            if (stored) {
+                highScores = JSON.parse(stored);
+            }
+        }
+        
+        function saveHighScores() {
+            localStorage.setItem('highScores', JSON.stringify(highScores));
+        }
         
         function initializeWeights() {
             const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
@@ -185,6 +196,11 @@
             document.getElementById('stats').textContent = 'Points: ' + points;
             const currentLetter = document.getElementById('letter').textContent;
             letterWeights[currentLetter] = Math.max(1, letterWeights[currentLetter] * 0.8);
+            document.body.classList.add('bg-green');
+            document.body.classList.remove('bg-red');
+            setTimeout(() => {
+                document.body.classList.remove('bg-green');
+            }, 200);
             generateLetter();
         }
         
@@ -192,6 +208,11 @@
             if (!gameActive) return;
             const currentLetter = document.getElementById('letter').textContent;
             letterWeights[currentLetter] *= 1.5;
+            document.body.classList.add('bg-red');
+            document.body.classList.remove('bg-green');
+            setTimeout(() => {
+                document.body.classList.remove('bg-red');
+            }, 200);
             generateLetter();
         }
         
