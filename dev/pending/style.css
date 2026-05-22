@@ -1,0 +1,31 @@
+.not-started {
+  background-color: #FFFF00;
+  color: #000;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.pending {
+  background-color: #FFA500;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.terminated {
+  background-color: #FF0000;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.complete {
+  background-color: #00AA00;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-weight: 500;
+}
