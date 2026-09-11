@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>404 — no such page — brentcrude</title>
+<meta name="description" content="That path does not exist on this site. Here is the way back.">
+<meta name="author" content="brentcrude">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0b0d0e">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='5' fill='%230b0d0e'/%3E%3Ctext x='16' y='23' font-family='monospace' font-size='19' font-weight='700' fill='%23ffb03a' text-anchor='middle'%3Eb%3C/text%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- root-relative on purpose: this page can be served from any depth.
+     nothing here depends on JS, so it also works when something else broke. -->
+<link rel="stylesheet" href="/assets/css/site.css">
+</head>
+<body>
+
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="/"><span class="tilde">~/</span>brentcrude<span class="caret" aria-hidden="true"></span></a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="/#about">About</a>
+      <a href="/#work">Projects</a>
+      <a href="/#nissign">NisSign</a>
+      <a href="/#stack">Stack</a>
+      <a class="archived" href="/legacy/">Archive</a>
+    </nav>
+  </div>
+</header>
+
+<main class="shell" id="top">
+
+  <section class="notfound">
+    <div class="wrap">
+
+      <p class="eyebrow">Error 404 &middot; path not found</p>
+
+      <div class="nf-head">
+        <p class="nf-code" aria-hidden="true">4<em>0</em>4</p>
+        <div>
+          <h1>There is no page at that address.</h1>
+          <p class="nf-sub">
+            Either the link is mistyped, or the thing it pointed at used to exist and no longer does.
+            Nothing is broken &mdash; that address simply isn&rsquo;t part of this site.
+          </p>
+        </div>
+      </div>
+
+      <div class="nf-grid">
+
+        <div>
+          <div class="term">
+            <div class="term-bar">
+              <span class="term-lights" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span>request log</span>
+            </div>
+            <pre class="term-body"><code><span class="p">$</span> <span class="cmd">curl -sI <span id="reqPath">https://knerd.tech/&hellip;</span></span>
+HTTP/2 <span class="no">404</span> <span class="note">Not Found</span>
+content-type: <span class="code">text/html; charset=utf-8</span>
+x-served-by: <span class="code">github pages</span>
+<span class="note"># no file in this repository matches that path</span>
+<span class="p">$</span> <span class="term-cursor" aria-hidden="true"></span></code></pre>
+          </div>
+
+          <div class="actions nf-actions">
+            <a class="btn primary" href="/">Back to the home page<span class="arw" aria-hidden="true">&larr;</span></a>
+            <a class="btn" href="/#work">See the projects<span class="arw" aria-hidden="true">&darr;</span></a>
+          </div>
+        </div>
+
+        <div>
+          <h2>Places that do exist</h2>
+          <ul class="destinations">
+            <li><a href="/"><span class="path">/</span><span class="desc">bio &amp; projects</span></a></li>
+            <li><a href="/nissign/"><span class="path">/nissign/</span><span class="desc">free PDF signing</span></a></li>
+            <li><a href="/legacy/"><span class="path">/legacy/</span><span class="desc">archived demo</span></a></li>
+            <li><a href="https://github.com/brentcrude" rel="noopener"><span class="path">github.com/brentcrude</span><span class="desc">source &amp; code &#8599;</span></a></li>
+          </ul>
+          <p class="fineprint">
+            If you followed a link from somewhere on this site and landed here, that link is out of date &mdash;
+            it&rsquo;s a bug, and worth fixing.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>&copy; 2026 brentcrude &middot; hand-written HTML, CSS &amp; JS, no tracker</span>
+    <div class="foot-links">
+      <a href="https://github.com/brentcrude" rel="noopener">GitHub</a>
+      <a href="/nissign/">NisSign</a>
+      <a href="/legacy/">Archive</a>
+      <a href="https://github.com/brentcrude/brentcrude.github.io" rel="noopener">Source</a>
+    </div>
+  </div>
+</footer>
+
+<!-- Enhancement only: the log above already reads fine without it. The path comes
+     from the URL, so it is written with textContent — never innerHTML. -->
+<script>
+(function () {
+  var el = document.getElementById("reqPath");
+  if (!el) return;
+  var p = location.pathname + location.search;
+  if (p === "/" || p.length > 120) return;
+  el.textContent = location.origin + p;
+})();
+</script>
+
+</body>
+</html>
