@@ -1,21 +1,185 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>BC: Main</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>brentcrude — developer</title>
+<meta name="description" content="brentcrude is a developer building browser-first, local-first tools: audio-to-notation software, browsing filters, and small useful things with no unnecessary backend.">
+<meta name="author" content="brentcrude">
+<meta name="theme-color" content="#0b0d0e">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="brentcrude — developer">
+<meta property="og:description" content="Browser-first, local-first software. Audio-to-notation, browsing filters, and small useful tools.">
+<meta property="og:url" content="https://knerd.tech/">
+<meta name="twitter:card" content="summary">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='5' fill='%230b0d0e'/%3E%3Ctext x='16' y='23' font-family='monospace' font-size='19' font-weight='700' fill='%23ffb03a' text-anchor='middle'%3Eb%3C/text%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/site.css">
 </head>
 <body>
-  <div class="navbar">
-    <div class="navBox active">Home</div>
-    <div class="navBox">2</div>
-    <div class="navBox">3</div>
-    <div class="navBox">4</div>
-  </div>
-  <input id="username" placeholder="Enter Username">
-  <input type="password" id="pwdIn" placeholder="Enter password">
-  <button id="checkPwd">Unlock</button>
-  <div id="displayBuffer" style="display:none; margin-top:20px;"></div>
 
-  <script src="main.js"></script>
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="#top"><span class="tilde">~/</span>brentcrude<span class="caret" aria-hidden="true"></span></a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="#about">About</a>
+      <a href="#work">Projects</a>
+      <a href="#stack" class="hide-sm">Stack</a>
+      <a class="archived" href="legacy/">Archive</a>
+    </nav>
+  </div>
+</header>
+
+<main class="shell" id="top">
+
+  <!-- ============ hero ============ -->
+  <section class="hero">
+    <div class="wrap">
+      <p class="status-line"><span class="pulse" aria-hidden="true"></span>Currently building &middot; hum-to-score &amp; Warden</p>
+      <h1>brentcrude</h1>
+      <p class="role"><b>Developer.</b> Browser-first tools, self-hosted software, and the occasional rabbit hole.</p>
+      <p class="bio">
+        I build things end to end and keep them <strong>small on purpose</strong> — usually a single page,
+        a single file, or a single machine. Favourite problems live close to the metal of the browser:
+        audio, extensions, offline-first data, and anything where a backend would only be a liability.
+      </p>
+      <div class="actions">
+        <a class="btn primary" href="#work">See what I'm building<span class="arw" aria-hidden="true">↓</span></a>
+        <a class="btn" href="https://github.com/brentcrude" rel="noopener">GitHub<span class="arw" aria-hidden="true">↗</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ about ============ -->
+  <section id="about">
+    <div class="wrap">
+      <p class="eyebrow">About</p>
+      <div class="about-grid">
+        <div>
+          <h2>Fewer moving parts, more finished work.</h2>
+          <p>
+            Most of what I write starts as a personal annoyance and ends as something self-contained.
+            A humming-to-sheet-music tool that runs entirely in the browser. A browsing filter that
+            deliberately has no server, because browsing history should not live on somebody else's
+            computer. A document signer that is one HTML file.
+          </p>
+          <p>
+            The through-line is <strong>local-first</strong>: keep the data where the user is, keep the
+            dependency list boring, and make the thing actually finish. I care more about a tool that gets
+            used than an architecture that looks impressive in a diagram.
+          </p>
+        </div>
+        <ul class="facts">
+          <li><span class="k">Focus</span><span class="v">Browser &amp; local-first</span></li>
+          <li><span class="k">Writes</span><span class="v">Python, JavaScript, HTML/CSS</span></li>
+          <li><span class="k">Shipping</span><span class="v">hum-to-score, Warden</span></li>
+          <li><span class="k">Also</span><span class="v"><a class="link-arrow" href="legacy/">older experiments</a></span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ projects ============ -->
+  <section id="work">
+    <div class="wrap">
+      <p class="eyebrow">Projects</p>
+      <div class="section-head">
+        <h2>A few things in flight</h2>
+        <span class="counter" aria-hidden="true"><b id="pIndex">01</b> / <span id="pTotal">04</span></span>
+      </div>
+
+      <div class="panel" id="panel" tabindex="0" aria-roledescription="carousel" aria-label="Projects">
+        <div class="stage" id="stage" aria-live="polite"></div>
+
+        <div class="panel-foot">
+          <div class="dots" id="dots" role="tablist" aria-label="Choose a project"></div>
+          <span class="rotator-note" id="rotatorNote" aria-live="polite"></span>
+          <div class="controls">
+            <button type="button" class="ctrl" id="prev" aria-label="Previous project">&larr;</button>
+            <button type="button" class="ctrl" id="playPause" aria-label="Pause auto-rotation" aria-pressed="false">&#10074;&#10074;</button>
+            <button type="button" class="ctrl" id="next" aria-label="Next project">&rarr;</button>
+          </div>
+        </div>
+
+        <div class="progress" aria-hidden="true"><span id="progress"></span></div>
+      </div>
+
+      <noscript>
+        <ul class="noscript-list">
+          <li>hum-to-score — hum a melody, get written music back (music notation editor in the browser)</li>
+          <li>Warden — self-hosted, family-safe browsing filter with a local admin dashboard</li>
+          <li>NisSign — single-file, client-side document signing tool</li>
+          <li>Blackjack AI — blackjack-playing agent trained on logged hand data</li>
+        </ul>
+      </noscript>
+    </div>
+  </section>
+
+  <!-- ============ stack ============ -->
+  <section id="stack">
+    <div class="wrap">
+      <p class="eyebrow">Tooling</p>
+      <h2>What I reach for</h2>
+      <div class="stack-grid">
+        <div class="stack-card">
+          <h3>Languages</h3>
+          <ul>
+            <li>Python</li>
+            <li>JavaScript</li>
+            <li>HTML / CSS</li>
+            <li>Bash</li>
+          </ul>
+        </div>
+        <div class="stack-card">
+          <h3>Browser</h3>
+          <ul>
+            <li>Chrome MV3 &amp; Firefox extensions</li>
+            <li>declarativeNetRequest</li>
+            <li>Service workers</li>
+            <li>Canvas &amp; Web Audio</li>
+          </ul>
+        </div>
+        <div class="stack-card">
+          <h3>Data &amp; services</h3>
+          <ul>
+            <li>pandas &amp; CSV pipelines</li>
+            <li>Supabase</li>
+            <li>REST / market-data APIs</li>
+            <li>Streamlit</li>
+          </ul>
+        </div>
+        <div class="stack-card">
+          <h3>Formats</h3>
+          <ul>
+            <li>MusicXML &amp; MIDI</li>
+            <li>PDF export</li>
+            <li>Static sites, no build step</li>
+            <li>Local storage &amp; offline data</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>&copy; 2026 brentcrude &middot; hand-written HTML, CSS &amp; JS, no tracker</span>
+    <div class="foot-links">
+      <a href="https://github.com/brentcrude" rel="noopener">GitHub</a>
+      <a href="legacy/">Archive</a>
+      <a href="https://github.com/brentcrude/brentcrude.github.io" rel="noopener">Source</a>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/projects.js"></script>
+<script src="assets/js/main.js"></script>
 </body>
 </html>
