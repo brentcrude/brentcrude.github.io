@@ -24,12 +24,12 @@ window.PROJECTS = [
   {
     name: "NisSign",
     status: "active",
-    statusLabel: "Building",
+    statusLabel: "Live & free",
     blurb:
-      "A dependency-free document signing tool that lives in a single HTML file. Paper-toned interface, drawn signatures and stamps, fillable fields — all of it client-side, so your documents never leave the machine.",
-    tags: ["Single-file HTML/CSS/JS", "Canvas", "Client-side only"],
-    href: null,
-    linkLabel: null
+      "Sign a PDF without uploading it anywhere. Draw your signature, place fields, and export — entirely in the browser. Free, no account, and nothing is ever sent to a server, because there is no server to send it to.",
+    tags: ["Free", "Runs fully local", "Single-file HTML/CSS/JS", "Canvas"],
+    href: "nissign/",
+    linkLabel: "Open the tool"
   },
   {
     name: "Blackjack AI",

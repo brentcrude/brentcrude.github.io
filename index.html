@@ -29,7 +29,8 @@
     <nav class="site-nav" aria-label="Main">
       <a href="#about">About</a>
       <a href="#work">Projects</a>
-      <a href="#stack" class="hide-sm">Stack</a>
+      <a href="#nissign">NisSign</a>
+      <a href="#stack">Stack</a>
       <a class="archived" href="legacy/">Archive</a>
     </nav>
   </div>
@@ -113,10 +114,57 @@
         <ul class="noscript-list">
           <li>hum-to-score — hum a melody, get written music back (music notation editor in the browser)</li>
           <li>Warden — self-hosted, family-safe browsing filter with a local admin dashboard</li>
-          <li>NisSign — single-file, client-side document signing tool</li>
+          <li>NisSign — free PDF signing tool that runs entirely on your own device (<a href="nissign/">open it</a>)</li>
           <li>Blackjack AI — blackjack-playing agent trained on logged hand data</li>
         </ul>
       </noscript>
+    </div>
+  </section>
+
+  <!-- ============ nissign ============ -->
+  <section id="nissign" class="feature">
+    <div class="wrap">
+      <p class="eyebrow">Free tool &middot; no account &middot; nothing uploaded</p>
+      <div class="feature-card">
+        <div class="feature-main">
+          <span class="badge">Free forever</span>
+          <h2>NisSign — sign a PDF that never leaves your machine</h2>
+          <p class="feature-lede">
+            Drop in a PDF, place your signature, initials and date fields, draw on the pad, and export a
+            signed document. It runs entirely in your browser &mdash; there is no upload step, because there
+            is no server behind it at all.
+          </p>
+          <ul class="feature-points">
+            <li><b>Free, with nothing withheld.</b> No account, no sign-up, no trial, no watermark on the
+              export, no paid tier waiting at the end.</li>
+            <li><b>Nothing is sent to a server.</b> The PDF you open, every stroke you draw and the file you
+              export stay on your own device. Nothing is uploaded, because there is nowhere to upload it to.</li>
+            <li><b>Private by architecture, not by promise.</b> No backend means no document store to breach
+              and no audit log of what you signed. Close the tab and it is gone.</li>
+          </ul>
+          <div class="actions">
+            <a class="btn primary" href="nissign/" target="_blank" rel="noopener">Open NisSign<span class="arw" aria-hidden="true">↗</span></a>
+            <a class="btn" href="https://github.com/brentcrude" rel="noopener">More tools<span class="arw" aria-hidden="true">↗</span></a>
+          </div>
+        </div>
+
+        <aside class="privacy" aria-label="NisSign privacy guarantees">
+          <h3>Local by design</h3>
+          <ul class="privacy-list">
+            <li><span class="k">Cost</span><span class="v yes">Free</span></li>
+            <li><span class="k">Sign-up</span><span class="v yes">Not required</span></li>
+            <li><span class="k">Uploads to a server</span><span class="v yes">None</span></li>
+            <li><span class="k">Document stored elsewhere</span><span class="v yes">Never</span></li>
+            <li><span class="k">Tracking or analytics</span><span class="v yes">None</span></li>
+            <li><span class="k">Close the tab</span><span class="v yes">Everything wiped</span></li>
+          </ul>
+          <p class="fineprint">
+            The PDF engine loads from a public CDN when you first open the tool; your document is never part
+            of that request. NisSign is a local signing tool with an honest integrity fingerprint &mdash; not a
+            certificate-backed e-signature. It says so itself, in its own security notes.
+          </p>
+        </aside>
+      </div>
     </div>
   </section>
 
@@ -173,6 +221,7 @@
     <span>&copy; 2026 brentcrude &middot; hand-written HTML, CSS &amp; JS, no tracker</span>
     <div class="foot-links">
       <a href="https://github.com/brentcrude" rel="noopener">GitHub</a>
+      <a href="nissign/" target="_blank" rel="noopener">NisSign</a>
       <a href="legacy/">Archive</a>
       <a href="https://github.com/brentcrude/brentcrude.github.io" rel="noopener">Source</a>
     </div>

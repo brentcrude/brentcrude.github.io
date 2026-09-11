@@ -375,6 +375,119 @@ h2 {
 .stack-card li { padding: 3px 0; }
 
 /* ============================================================
+   featured tool — nissign
+   ============================================================ */
+.feature-card {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+
+.feature-main { background: var(--surface); padding: 36px 34px 34px; }
+
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(255, 176, 58, 0.4);
+  border-radius: 999px;
+  background: var(--accent-wash);
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.feature-main h2 { margin-bottom: 14px; }
+
+.feature-lede {
+  max-width: 58ch;
+  margin: 0 0 22px;
+  color: var(--ink-2);
+  font-size: 1rem;
+}
+
+.feature-points {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0 0 28px;
+  padding: 0;
+  list-style: none;
+}
+
+.feature-points li {
+  position: relative;
+  padding-left: 26px;
+  color: var(--ink-2);
+  font-size: 0.95rem;
+}
+
+.feature-points li::before {
+  content: "\2192";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--accent);
+  font-family: var(--mono);
+}
+
+.feature-points b { color: var(--ink); font-weight: 500; }
+
+/* ---------- guarantee panel ---------- */
+.privacy {
+  background: var(--bg);
+  padding: 34px 28px;
+  display: flex;
+  flex-direction: column;
+}
+
+.privacy h3 {
+  margin: 0 0 14px;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.privacy-list {
+  margin: 0 0 20px;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line);
+}
+
+.privacy-list li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+}
+
+.privacy-list .k { color: var(--ink-3); }
+.privacy-list .v { color: var(--ink); text-align: right; white-space: nowrap; }
+.privacy-list .v.yes { color: var(--ok); }
+
+.fineprint {
+  margin: auto 0 0;
+  font-size: 0.74rem;
+  line-height: 1.6;
+  color: var(--ink-3);
+}
+
+/* ============================================================
    rotating project panel
    ============================================================ */
 .section-head {
@@ -626,6 +739,9 @@ h2 {
   .hero { padding: 66px 0 56px; }
   .wrap { padding: 0 20px; }
   .about-grid { grid-template-columns: 1fr; gap: 30px; }
+  .feature-card { grid-template-columns: 1fr; }
+  .feature-main { padding: 28px 22px 26px; }
+  .privacy { padding: 26px 22px; }
   .slide { grid-template-columns: 1fr; gap: 18px; padding: 26px 22px 22px; }
   .slide-rail { flex-direction: row; align-items: center; gap: 12px; }
   .idx { font-size: 1.5rem; }
@@ -634,9 +750,26 @@ h2 {
   .controls { order: 3; width: 100%; justify-content: space-between; }
 }
 
+@media (max-width: 640px) {
+  /* give the nav its own wrapped row so links never push the page wide */
+  .site-head .wrap {
+    flex-wrap: wrap;
+    height: auto;
+    gap: 2px 14px;
+    padding-top: 9px;
+    padding-bottom: 9px;
+  }
+  .site-nav {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 0 2px;
+    margin-left: -7px;
+    font-size: 0.74rem;
+  }
+  .site-nav a { padding: 6px 7px; }
+}
+
 @media (max-width: 560px) {
-  .site-nav a { padding: 7px 8px; }
-  .site-nav a.hide-sm { display: none; }
   .stage { min-height: 500px; }
   .section-head { flex-direction: column; align-items: flex-start; gap: 8px; }
 }

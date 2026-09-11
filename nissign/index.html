@@ -1,0 +1,994 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>NisSign — sign a PDF</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/opendyslexic@5.0.3/index.css">
+<style>
+  :root{
+    --paper:#F7F5F0; --ink:#1F2A24; --ink-soft:#5B6B60; --line:#D8D3C4;
+    --accent:#B65C38; --accent-soft:#EFD9CC; --stamp:#2C5A4A; --paper-dark:#EDE9DF;
+    --ruler-bg:#EFEBE0; --lock:#8A8375;
+    font-size:16px;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{ margin:0; background:var(--paper); color:var(--ink); font-family:'Iowan Old Style','Palatino Linotype',Georgia,serif; display:flex; flex-direction:column; }
+  header{ display:flex; align-items:baseline; justify-content:space-between; padding:18px 28px; border-bottom:2px solid var(--ink); background:var(--paper); }
+  .brand{display:flex; align-items:baseline; gap:10px;}
+  .brand .mark{ font-family:Georgia, serif; font-weight:700; font-size:1.6rem; letter-spacing:0.02em; }
+  .brand .mark em{ color:var(--accent); font-style:normal; }
+  .brand .tag{ font-family:'Courier New', monospace; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.14em; color:var(--ink-soft); }
+  header .actions{display:flex; gap:10px; align-items:center;}
+  button{ font-family:'Courier New', monospace; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.08em; border:1.5px solid var(--ink); background:var(--paper); color:var(--ink); padding:9px 14px; cursor:pointer; border-radius:2px; transition:transform .08s ease, background .15s ease; }
+  button:hover:not(:disabled){ background:var(--ink); color:var(--paper); }
+  button:active:not(:disabled){ transform:translateY(1px); }
+  button:disabled{ opacity:0.35; cursor:not-allowed; }
+  button.primary{ background:var(--accent); border-color:var(--accent); color:#fff; }
+  button.primary:hover:not(:disabled){ background:#9c4b2c; border-color:#9c4b2c; }
+  button.ghost{ border-color:var(--line); color:var(--ink-soft); }
+  button.ghost:hover:not(:disabled){ background:var(--ink-soft); border-color:var(--ink-soft); }
+  button.tiny{ padding:4px 6px; font-size:0.62rem; }
+  button.icon{ padding:4px 0; font-size:0.85rem; width:100%; }
+
+  .layout{ flex:1; display:flex; min-height:0; }
+  aside{ width:330px; border-right:2px solid var(--ink); background:var(--paper-dark); padding:20px; overflow-y:auto; flex-shrink:0; }
+  aside h2{ font-family:'Courier New', monospace; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.14em; color:var(--ink-soft); margin:22px 0 10px 0; border-bottom:1px solid var(--line); padding-bottom:6px; }
+  aside h2:first-child{ margin-top:0; }
+  .upload-box{ border:2px dashed var(--line); border-radius:4px; padding:22px 14px; text-align:center; }
+  .upload-box p{ margin:0 0 10px 0; font-size:0.85rem; color:var(--ink-soft); }
+  .fingerprint{ font-family:'Courier New', monospace; font-size:0.66rem; color:var(--ink-soft); margin-top:10px; word-break:break-all; line-height:1.6; text-align:left; }
+  .fingerprint b{ color:var(--stamp); display:block; text-transform:uppercase; letter-spacing:0.08em; font-size:0.6rem; margin-bottom:2px; margin-top:8px;}
+  .fingerprint b:first-child{ margin-top:0; }
+  .fingerprint .copyRow{ display:flex; gap:6px; align-items:center; margin-top:4px;}
+
+  .import-notice{ font-size:0.78rem; background:var(--accent-soft); border:1px solid var(--accent); border-radius:3px; padding:10px 12px; margin-bottom:16px; line-height:1.5; }
+  .import-notice b{ color:var(--accent); }
+
+  .field-type-row{ display:flex; flex-direction:column; gap:8px; margin-bottom:10px; }
+  .field-type-row button{ width:100%; text-align:left; }
+  #scanBtn{ width:100%; margin-bottom:10px; }
+  #detectSummary{ font-size:0.78rem; color:var(--ink-soft); margin:0 0 8px 0; font-family:'Courier New', monospace;}
+  #detectSummary b{ color:var(--stamp); }
+  .shift-hint{ font-size:0.7rem; color:var(--ink-soft); font-family:'Courier New',monospace; margin:-4px 0 14px 0; line-height:1.5; }
+  .shift-hint kbd{ background:#fff; border:1px solid var(--line); border-radius:2px; padding:0 5px; }
+
+  .field-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px; }
+  .field-item{ border:1.5px solid var(--line); border-radius:3px; padding:10px 10px; background:var(--paper); font-size:0.82rem; }
+  .field-item.signed{ border-color:var(--stamp); }
+  .field-item.locked{ border-color:var(--lock); background:#F1EFE9; }
+  .field-item .row1{ display:flex; justify-content:space-between; align-items:center; gap:6px; }
+  .field-item .label{ font-weight:700; }
+  .field-item .meta{ color:var(--ink-soft); font-family:'Courier New', monospace; font-size:0.7rem; margin-top:3px;}
+  .status-dot{ width:8px; height:8px; border-radius:50%; background:var(--line); display:inline-block; margin-right:6px; }
+  .field-item.signed .status-dot{ background:var(--stamp); }
+  .field-item.locked .status-dot{ background:var(--lock); }
+  .field-item .btnrow{ display:flex; gap:6px; margin-top:8px; }
+  .field-item .btnrow button{ flex:1; padding:5px 6px; font-size:0.65rem; }
+  .align-row{ display:grid; grid-template-columns:repeat(6,1fr); gap:4px; margin-top:8px; }
+  .xy-grid{ display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:8px; }
+  .xy-grid label{ display:block; font-family:'Courier New',monospace; font-size:0.6rem; text-transform:uppercase; color:var(--ink-soft); margin-bottom:2px;}
+  .xy-grid input{ width:100%; font-family:'Courier New',monospace; font-size:0.72rem; padding:4px 5px; border:1px solid var(--line); border-radius:2px; }
+
+  main{ flex:1; overflow:auto; display:flex; flex-direction:column; align-items:center; padding:34px 20px 80px 20px; position:relative; }
+  .empty-state{ margin:auto; text-align:center; color:var(--ink-soft); max-width:360px; }
+  .empty-state .glyph{ font-size:2.4rem; margin-bottom:10px; }
+  .toolbar-row{ display:flex; align-items:center; gap:18px; margin-bottom:16px; font-family:'Courier New', monospace; font-size:0.8rem; }
+  .pager{ display:flex; align-items:center; gap:14px; }
+  .pager button{ padding:6px 10px; }
+  .unit-toggle{ display:flex; border:1.5px solid var(--ink); border-radius:2px; overflow:hidden; }
+  .unit-toggle button{ border:none; border-right:1.5px solid var(--ink); padding:6px 10px; font-size:0.68rem; }
+  .unit-toggle button:last-child{ border-right:none; }
+  .unit-toggle button.active{ background:var(--ink); color:var(--paper); }
+  .shift-badge{ font-size:0.68rem; padding:5px 9px; border-radius:2px; border:1.5px dashed var(--line); color:var(--ink-soft); }
+  .shift-badge.active{ border-color:var(--accent); color:var(--accent); border-style:solid; }
+
+  .pdf-frame{ display:grid; grid-template-columns:24px auto; grid-template-rows:24px auto; }
+  .corner{ grid-column:1; grid-row:1; background:var(--ruler-bg); border:1px solid var(--line); }
+  #rulerTop{ grid-column:2; grid-row:1; background:var(--ruler-bg); border:1px solid var(--line); border-left:none; display:block; }
+  #rulerLeft{ grid-column:1; grid-row:2; background:var(--ruler-bg); border:1px solid var(--line); border-top:none; display:block; }
+  #stage{ grid-column:2; grid-row:2; position:relative; box-shadow:0 6px 24px rgba(31,42,36,0.18); background:#fff; line-height:0; }
+  #stage.placing{ cursor:crosshair; }
+  #pdfCanvas{ display:block; }
+
+  .box{ position:absolute; border:2px dashed var(--stamp); background:rgba(44,90,74,0.06); display:flex; align-items:center; justify-content:center; text-align:center; font-family:'Courier New', monospace; font-size:0.65rem; color:var(--stamp); cursor:grab; padding:2px; user-select:none; }
+  .box.signed{ border-style:solid; background:transparent; cursor:default; }
+  .box.signed img{ max-width:100%; max-height:100%; object-fit:contain; }
+  .box.locked{ border-style:solid; border-color:var(--lock); background:rgba(138,131,117,0.08); color:var(--lock); cursor:default; }
+  .box .del{ position:absolute; top:-11px; right:-11px; width:20px; height:20px; border-radius:50%; background:var(--accent); color:#fff; border:none; font-size:12px; line-height:20px; padding:0; cursor:pointer; }
+  .box .relabel{ position:absolute; bottom:-11px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; border-radius:2px; font-size:0.6rem; padding:2px 6px; white-space:nowrap; }
+  .box .resize-handle{ position:absolute; right:-6px; bottom:-6px; width:12px; height:12px; background:var(--stamp); border:2px solid #fff; border-radius:2px; cursor:nwse-resize; }
+  .suggest{ position:absolute; border:2px dotted var(--accent); background:rgba(182,92,56,0.08); cursor:pointer; display:flex; align-items:center; justify-content:center; font-family:'Courier New', monospace; font-size:0.62rem; color:var(--accent); }
+  .suggest:hover{ background:rgba(182,92,56,0.2); }
+  .guide-v{ position:absolute; top:0; width:0; border-left:1px dashed #B0AA98; height:100%; pointer-events:none; }
+  .guide-h{ position:absolute; left:0; height:0; border-top:1px dashed #B0AA98; width:100%; pointer-events:none; }
+  .snap-v{ position:absolute; top:0; width:0; border-left:2px solid var(--accent); height:100%; pointer-events:none; z-index:15;}
+  .snap-h{ position:absolute; left:0; height:0; border-top:2px solid var(--accent); width:100%; pointer-events:none; z-index:15;}
+  .dim-tooltip{ position:absolute; background:var(--ink); color:var(--paper); font-family:'Courier New',monospace; font-size:0.62rem; padding:4px 7px; border-radius:2px; white-space:nowrap; pointer-events:none; z-index:20; line-height:1.5;}
+
+  .overlay{ position:fixed; inset:0; background:rgba(31,42,36,0.55); display:flex; align-items:center; justify-content:center; z-index:50; padding:20px; }
+  .modal{ background:var(--paper); border:2px solid var(--ink); border-radius:4px; width:min(640px, 92vw); padding:24px 26px; box-shadow:0 12px 40px rgba(0,0,0,0.3); max-height:90vh; overflow-y:auto; }
+  .modal h3{ margin:0 0 4px 0; font-size:1.15rem; }
+  .modal .sub{ color:var(--ink-soft); font-size:0.82rem; margin-bottom:16px; }
+  #padCanvas{ width:100%; height:180px; background:#fff; border:1.5px solid var(--ink); border-radius:3px; touch-action:none; cursor:crosshair; }
+  .padRow{ display:flex; justify-content:space-between; margin-top:8px; }
+  .padRow button{ padding:6px 10px; font-size:0.7rem; }
+  .modal label{ display:block; font-family:'Courier New', monospace; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--ink-soft); margin:18px 0 6px 0; }
+  .modal input[type=text]{ width:100%; padding:10px 12px; font-size:1.4rem; border:1.5px solid var(--ink); border-radius:3px; background:#fff; color:var(--ink); }
+  .font-pick{ display:flex; gap:8px; margin-top:8px; flex-wrap:wrap; }
+  .font-pick button{ font-size:1rem; padding:8px 14px; text-transform:none; letter-spacing:0; }
+  .font-pick button.active{ background:var(--ink); color:var(--paper); }
+  .size-row{ display:flex; align-items:center; gap:12px; margin-top:6px; }
+  .size-row input[type=range]{ flex:1; }
+  .size-row span{ font-family:'Courier New',monospace; font-size:0.75rem; color:var(--ink-soft); width:40px; }
+  .name-preview{ padding:6px 4px 0 4px; min-height:60px; display:flex; align-items:flex-end; }
+  .modal-actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:22px; }
+
+  .sec-note{ font-size:0.74rem; color:var(--ink-soft); line-height:1.55; background:var(--paper); border:1px solid var(--line); border-radius:3px; padding:10px 12px; }
+  .sec-note b{ color:var(--ink); }
+  .cert-list{ font-family:'Courier New',monospace; font-size:0.76rem; line-height:1.7; background:#fff; border:1px solid var(--line); border-radius:3px; padding:12px 14px; margin:14px 0; max-height:220px; overflow-y:auto; }
+  .hash-row{ display:flex; gap:8px; align-items:flex-start; font-family:'Courier New',monospace; font-size:0.68rem; word-break:break-all; margin:6px 0; }
+  .hash-row b{ flex-shrink:0; width:70px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <span class="mark">Nis<em>Sign</em></span>
+    <span class="tag">draw it. type it. stamp the page.</span>
+  </div>
+  <div class="actions">
+    <button id="securityBtn" class="ghost">🔒 Security notes</button>
+    <button id="newDocBtn" class="ghost" disabled>Start over</button>
+    <button id="exportBtn" class="primary" disabled>Export signed PDF</button>
+  </div>
+</header>
+
+<div class="layout">
+  <aside>
+    <h2>Document</h2>
+    <div class="upload-box" id="uploadBox">
+      <p>Drop a PDF here, or</p>
+      <input type="file" id="fileInput" accept="application/pdf" style="display:none" />
+      <button id="chooseFileBtn">Choose a PDF</button>
+      <div class="fingerprint" id="fingerprintBox" style="display:none"></div>
+    </div>
+
+    <div id="importNotice" class="import-notice" style="display:none"></div>
+
+    <h2>Add a field</h2>
+    <div class="field-type-row">
+      <button data-type="signature">+ Signature field</button>
+      <button data-type="initials">+ Initials field</button>
+      <button data-type="date">+ Date field</button>
+    </div>
+    <div class="shift-hint">New fields default-align to the last field of the same type (own or a
+      previous signer's). Hold <kbd>Shift</kbd> while placing or dragging to turn that off.</div>
+    <button id="scanBtn" class="ghost" disabled>Scan page for "sign here" lines</button>
+    <div id="detectSummary" style="display:none"></div>
+
+    <h2>Fields on this document</h2>
+    <ul class="field-list" id="fieldList"></ul>
+  </aside>
+
+  <main>
+    <div class="empty-state" id="emptyState">
+      <div class="glyph">✒️</div>
+      <p><strong>No document yet.</strong><br/>Load a PDF on the left — including one already signed with
+      NisSign — and NisSign will pick up where the last signer left off.</p>
+    </div>
+
+    <div class="toolbar-row" id="toolbarRow" style="display:none">
+      <div class="pager">
+        <button id="prevPage">‹ prev</button>
+        <span id="pageIndicator">page 1 / 1</span>
+        <button id="nextPage">next ›</button>
+      </div>
+      <div class="unit-toggle" id="unitToggle">
+        <button data-unit="in" class="active">in</button>
+        <button data-unit="pt">pt</button>
+        <button data-unit="px">px</button>
+      </div>
+      <div class="shift-badge" id="shiftBadge">Shift: alignment off while held</div>
+    </div>
+
+    <div class="pdf-frame" id="pdfFrame" style="display:none">
+      <div class="corner"></div>
+      <canvas id="rulerTop" height="24"></canvas>
+      <canvas id="rulerLeft" width="24"></canvas>
+      <div id="stage">
+        <canvas id="pdfCanvas"></canvas>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="overlay" id="signOverlay" style="display:none">
+  <div class="modal">
+    <h3 id="modalTitle">Signature</h3>
+    <div class="sub" id="modalSub">Draw on the pad, then type the name to go under it.</div>
+    <div id="drawSection">
+      <canvas id="padCanvas"></canvas>
+      <div class="padRow">
+        <button id="clearPad" class="ghost">Clear</button>
+        <span style="font-family:'Courier New',monospace;font-size:0.7rem;color:var(--ink-soft);align-self:center;">drag to draw — mouse or touch</span>
+      </div>
+    </div>
+    <label id="nameLabel">Type the name</label>
+    <input type="text" id="nameInput" placeholder="e.g. Alex Rivera" />
+    <div class="font-pick" id="fontPick">
+      <button data-family="Georgia, 'Times New Roman', serif" data-italic="0" class="active" style="font-family:Georgia, 'Times New Roman', serif;">Serif</button>
+      <button data-family="'Helvetica Neue', Arial, sans-serif" data-italic="0" style="font-family:'Helvetica Neue', Arial, sans-serif;">Sans-serif</button>
+      <button data-family="'OpenDyslexic','Open Dyslexic','Comic Sans MS',sans-serif" data-italic="0" style="font-family:'OpenDyslexic','Open Dyslexic','Comic Sans MS',sans-serif;">Dyslexia-friendly</button>
+      <button data-family="Georgia, serif" data-italic="1" style="font-family:Georgia, serif; font-style:italic;">Signature style</button>
+    </div>
+    <label>Size</label>
+    <div class="size-row">
+      <input type="range" id="sizeSlider" min="28" max="84" value="54" step="2" />
+      <span id="sizeReadout">54px</span>
+    </div>
+    <div class="name-preview" id="namePreview"></div>
+    <div class="modal-actions">
+      <button id="cancelSign" class="ghost">Cancel</button>
+      <button id="saveSign" class="primary">Insert into field</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="securityOverlay" style="display:none">
+  <div class="modal">
+    <h3>Security &amp; privacy notes</h3>
+    <div class="sec-note">
+      <p><b>Everything happens in your browser.</b> The PDF you load, every stroke you draw, and the file you
+      export never touch a server. Closing the tab clears everything.</p>
+      <p><b>How re-importing works.</b> When you export, NisSign writes a small, plain-text field manifest
+      (positions, types, labels, who typed what, when) into the PDF's own Subject metadata field, alongside a
+      SHA-256 fingerprint of the file. When anyone — including a different signer on a different computer —
+      loads that PDF back into NisSign, it reads that manifest and automatically reconstructs the layout:
+      already-completed fields show up locked (their ink is already burned into the page), and any
+      still-empty fields you left for someone else show up ready to fill. This is how a contractor can sign,
+      email the PDF to a client, and have the client's copy of NisSign already know where the client's
+      signature field goes.</p>
+      <p><b>This metadata is plain, not hidden.</b> Anyone can see it in the file's Properties/Subject field —
+      NisSign doesn't disguise it. Stripping metadata (e.g. with a "flatten/optimize PDF" tool) just turns off
+      auto-detection on the next import; it doesn't change any signature already drawn on the page.</p>
+      <p><b>What this is <em>not</em>.</b> Not a legally-binding e-signature under ESIGN, UETA, or eIDAS.
+      No identity verification, no PKI-based cryptographic signature Acrobat could validate against a
+      certificate authority, no trusted third-party timestamp (the clock is whatever the signer's device
+      says), no server-side audit log. The fingerprint chain (original → each hop → final) is an honest
+      integrity trail for good-faith parties, not tamper-proof against someone determined to forge it.</p>
+    </div>
+    <div class="modal-actions"><button id="closeSecurity" class="primary">Got it</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="summaryOverlay" style="display:none">
+  <div class="modal">
+    <h3>Signed PDF exported</h3>
+    <div class="sub">Save this record if you want to be able to prove the file wasn't changed later.</div>
+    <div class="hash-row"><b>Root doc:</b> <span id="sumRootHash"></span></div>
+    <div class="hash-row"><b>You opened:</b> <span id="sumParentHash"></span></div>
+    <div class="hash-row"><b>You produced:</b> <span id="sumFinalHash"></span></div>
+    <div class="cert-list" id="sumFieldList"></div>
+    <div class="modal-actions">
+      <button id="copySummary" class="ghost">Copy report</button>
+      <button id="closeSummary" class="primary">Done</button>
+    </div>
+  </div>
+</div>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+// ---------- state ----------
+let pdfBytesOriginal = null;
+let loadedHash = '';
+let rootHash = '';
+let parentHash = '';
+let pdfDocProxy = null;
+let renderScale = 1.5;
+let currentPage = 1;
+let numPages = 1;
+let fields = [];
+let suggestions = {};
+let pageSizesPt = {};
+let placementType = null;
+let activeFieldId = null;
+let fieldSeq = 1;
+let importSeq = 1;
+let unit = 'in';
+let currentViewport = null;
+let shiftHeld = false;
+
+const DEFAULT_SIZE = { signature:{w:220,h:64}, initials:{w:70,h:46}, date:{w:130,h:34} };
+const DEFAULT_LABEL = { signature:'Signature', initials:'Initials', date:'Date' };
+const PT_PER_UNIT = { in:72, pt:1, px:0.75 };
+const SNAP_PX = 8;
+const MANIFEST_PREFIX = 'NISSIGN1:';
+
+function ptToUnit(pt, u){ return pt / PT_PER_UNIT[u]; }
+function unitToPt(v, u){ return v * PT_PER_UNIT[u]; }
+function fmtUnit(pt, u){ const v = ptToUnit(pt, u); return u === 'px' ? Math.round(v) + 'px' : v.toFixed(2) + (u === 'in' ? 'in' : 'pt'); }
+function snapThresholdPt(){ return SNAP_PX / renderScale; }
+function shortHash(h){ return h ? (h.slice(0,12) + '…' + h.slice(-8)) : '—'; }
+
+function b64EncodeUnicode(str){ return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (m,p1)=>String.fromCharCode('0x'+p1))); }
+function b64DecodeUnicode(str){ return decodeURIComponent(Array.prototype.map.call(atob(str), c => '%' + ('00'+c.charCodeAt(0).toString(16)).slice(-2)).join('')); }
+
+window.addEventListener('keydown', e => { if (e.key === 'Shift') { shiftHeld = true; updateShiftBadge(); } });
+window.addEventListener('keyup', e => { if (e.key === 'Shift') { shiftHeld = false; updateShiftBadge(); } });
+window.addEventListener('blur', () => { shiftHeld = false; updateShiftBadge(); });
+function updateShiftBadge(){
+  const b = document.getElementById('shiftBadge');
+  if (b) b.classList.toggle('active', shiftHeld);
+}
+
+// ---------- DOM refs ----------
+const fileInput = document.getElementById('fileInput');
+const chooseFileBtn = document.getElementById('chooseFileBtn');
+const uploadBox = document.getElementById('uploadBox');
+const pdfFrame = document.getElementById('pdfFrame');
+const stage = document.getElementById('stage');
+const canvas = document.getElementById('pdfCanvas');
+const ctx = canvas.getContext('2d');
+const rulerTop = document.getElementById('rulerTop');
+const rulerLeft = document.getElementById('rulerLeft');
+const toolbarRow = document.getElementById('toolbarRow');
+const pageIndicator = document.getElementById('pageIndicator');
+const emptyState = document.getElementById('emptyState');
+const exportBtn = document.getElementById('exportBtn');
+const newDocBtn = document.getElementById('newDocBtn');
+const scanBtn = document.getElementById('scanBtn');
+const detectSummary = document.getElementById('detectSummary');
+const fieldListEl = document.getElementById('fieldList');
+const fingerprintBox = document.getElementById('fingerprintBox');
+const importNotice = document.getElementById('importNotice');
+
+chooseFileBtn.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', e => { if (e.target.files[0]) loadPdf(e.target.files[0]); });
+uploadBox.addEventListener('dragover', e => e.preventDefault());
+uploadBox.addEventListener('drop', e => { e.preventDefault(); if (e.dataTransfer.files[0]) loadPdf(e.dataTransfer.files[0]); });
+
+document.querySelectorAll('.field-type-row button').forEach(btn => {
+  btn.addEventListener('click', () => { if (!pdfDocProxy) return; placementType = btn.dataset.type; stage.classList.add('placing'); });
+});
+
+document.getElementById('prevPage').addEventListener('click', () => changePage(-1));
+document.getElementById('nextPage').addEventListener('click', () => changePage(1));
+newDocBtn.addEventListener('click', () => location.reload());
+
+document.getElementById('unitToggle').addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-unit]');
+  if (!btn) return;
+  unit = btn.dataset.unit;
+  document.querySelectorAll('#unitToggle button').forEach(b => b.classList.toggle('active', b === btn));
+  drawRulers();
+  refreshFieldList();
+});
+
+document.getElementById('securityBtn').addEventListener('click', () => document.getElementById('securityOverlay').style.display = 'flex');
+document.getElementById('closeSecurity').addEventListener('click', () => document.getElementById('securityOverlay').style.display = 'none');
+
+// ---------- hashing ----------
+async function sha256Hex(bytes) {
+  const digest = await crypto.subtle.digest('SHA-256', bytes);
+  return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// ---------- load & render ----------
+async function loadPdf(file) {
+  const buf = await file.arrayBuffer();
+  pdfBytesOriginal = new Uint8Array(buf.slice(0));
+  loadedHash = await sha256Hex(pdfBytesOriginal.slice(0));
+
+  const loadingTask = pdfjsLib.getDocument({ data: buf.slice(0) });
+  pdfDocProxy = await loadingTask.promise;
+  numPages = pdfDocProxy.numPages;
+  currentPage = 1;
+  fields = [];
+  suggestions = {};
+  pageSizesPt = {};
+  for (let p = 1; p <= numPages; p++) {
+    const pg = await pdfDocProxy.getPage(p);
+    const vp1 = pg.getViewport({ scale: 1 });
+    pageSizesPt[p] = { w: vp1.width, h: vp1.height };
+  }
+
+  // ---- auto-detect a previous NisSign manifest ----
+  let manifest = null;
+  try {
+    const meta = await pdfDocProxy.getMetadata();
+    const subject = meta && meta.info && meta.info.Subject;
+    if (subject && subject.startsWith(MANIFEST_PREFIX)) {
+      manifest = JSON.parse(b64DecodeUnicode(subject.slice(MANIFEST_PREFIX.length)));
+    }
+  } catch (e) { manifest = null; }
+
+  if (manifest && manifest.fields) {
+    rootHash = manifest.rootHash || loadedHash;
+    parentHash = manifest.parentHash || loadedHash;
+    importSeq = 1;
+    manifest.fields.forEach(mf => {
+      fields.push({
+        id: 'imp' + (importSeq++), page: mf.page, type: mf.type, label: mf.label,
+        xPt: mf.xPt, yPt: mf.yPt, wPt: mf.wPt, hPt: mf.hPt,
+        dataUrl: null, text: mf.text || null,
+        signedAt: mf.signedAt ? new Date(mf.signedAt) : null,
+        locked: !!mf.locked
+      });
+    });
+    const lockedCount = fields.filter(f => f.locked).length;
+    const openCount = fields.length - lockedCount;
+    importNotice.style.display = 'block';
+    importNotice.innerHTML = `<b>Picked up a previous NisSign session.</b><br/>` +
+      `${lockedCount} field${lockedCount===1?'':'s'} already signed (locked), ` +
+      `${openCount} field${openCount===1?'':'s'} still waiting to be filled.`;
+  } else {
+    rootHash = loadedHash;
+    parentHash = loadedHash;
+    importNotice.style.display = 'none';
+  }
+
+  fingerprintBox.style.display = 'block';
+  fingerprintBox.innerHTML =
+    `<b>This file (SHA-256)</b>${loadedHash}` +
+    (manifest ? `<b>Root document</b>${rootHash}` : '');
+
+  fieldListEl.innerHTML = '';
+  detectSummary.style.display = 'none';
+  emptyState.style.display = 'none';
+  toolbarRow.style.display = 'flex';
+  pdfFrame.style.display = 'grid';
+  exportBtn.disabled = true;
+  newDocBtn.disabled = false;
+  scanBtn.disabled = false;
+  await renderPage(currentPage);
+  refreshFieldList();
+}
+
+async function renderPage(pageNum) {
+  const page = await pdfDocProxy.getPage(pageNum);
+  const viewport = page.getViewport({ scale: renderScale });
+  currentViewport = viewport;
+  canvas.width = viewport.width;
+  canvas.height = viewport.height;
+  await page.render({ canvasContext: ctx, viewport }).promise;
+  pageIndicator.textContent = `page ${pageNum} / ${numPages}`;
+  drawOverlaysForPage(pageNum, viewport);
+  drawRulers();
+}
+
+function changePage(delta) {
+  const next = currentPage + delta;
+  if (next < 1 || next > numPages) return;
+  currentPage = next;
+  renderPage(currentPage);
+}
+
+// ---------- rulers ----------
+function drawRulers() {
+  if (!currentViewport) return;
+  const w = canvas.width, h = canvas.height;
+  rulerTop.width = w; rulerTop.height = 24;
+  rulerLeft.width = 24; rulerLeft.height = h;
+  const tctx = rulerTop.getContext('2d');
+  const lctx = rulerLeft.getContext('2d');
+  tctx.clearRect(0,0,w,24); lctx.clearRect(0,0,24,h);
+  tctx.font = '9px monospace'; lctx.font = '9px monospace';
+  tctx.fillStyle = '#5B6B60'; lctx.fillStyle = '#5B6B60';
+  tctx.strokeStyle = '#B0AA98'; lctx.strokeStyle = '#B0AA98';
+  const minorPt = 18, majorPt = 72;
+  const maxPt = Math.max(w, h) / renderScale + majorPt;
+  for (let pt = 0; pt <= maxPt; pt += minorPt) {
+    const px = pt * renderScale;
+    const isMajor = Math.round(pt) % majorPt === 0;
+    if (px <= w) {
+      tctx.beginPath(); tctx.moveTo(px, isMajor?8:14); tctx.lineTo(px,24); tctx.stroke();
+      if (isMajor && pt>0) tctx.fillText(String(unit==='px'?Math.round(ptToUnit(pt,'px')):(unit==='pt'?Math.round(pt):(pt/72).toFixed(0))), px+2, 9);
+    }
+    if (px <= h) {
+      lctx.beginPath(); lctx.moveTo(isMajor?8:14, px); lctx.lineTo(24,px); lctx.stroke();
+      if (isMajor && pt>0) {
+        lctx.save(); lctx.translate(9, px-2); lctx.rotate(-Math.PI/2);
+        lctx.fillText(String(unit==='px'?Math.round(ptToUnit(pt,'px')):(unit==='pt'?Math.round(pt):(pt/72).toFixed(0))), 0, 0);
+        lctx.restore();
+      }
+    }
+  }
+}
+
+// ---------- overlay boxes ----------
+function clearOverlayEls() { stage.querySelectorAll('.box, .suggest').forEach(el => el.remove()); }
+
+function drawOverlaysForPage(pageNum, viewport) {
+  clearOverlayEls();
+  fields.filter(f => f.page === pageNum).forEach(f => renderFieldBox(f));
+  (suggestions[pageNum] || []).forEach((s, idx) => renderSuggestionBox(s, idx, pageNum));
+}
+
+function ptToPx(v) { return v * renderScale; }
+
+function renderFieldBox(field) {
+  const el = document.createElement('div');
+  el.className = 'box' + (field.locked ? ' locked' : (field.dataUrl || field.text ? ' signed' : ''));
+  el.style.left = ptToPx(field.xPt) + 'px';
+  el.style.top = ptToPx(field.yPt) + 'px';
+  el.style.width = ptToPx(field.wPt) + 'px';
+  el.style.height = ptToPx(field.hPt) + 'px';
+  el.dataset.fieldId = field.id;
+
+  if (field.locked) {
+    el.innerHTML = `<span>🔒 ${field.label}${field.text ? ' — "' + field.text + '"' : ''}</span>`;
+  } else if (field.type === 'date' && field.text) {
+    el.innerHTML = `<span style="font-family:Georgia,serif;font-size:1rem;color:var(--ink);">${field.text}</span>`;
+  } else if (field.dataUrl) {
+    el.innerHTML = `<img src="${field.dataUrl}" draggable="false"/>`;
+  } else {
+    el.textContent = `${field.label} — click to fill`;
+  }
+
+  const del = document.createElement('button');
+  del.className = 'del'; del.textContent = '×';
+  del.title = field.locked ? 'Stop tracking this field' : 'Remove field';
+  del.addEventListener('click', (e) => { e.stopPropagation(); removeField(field.id); });
+  el.appendChild(del);
+
+  const tag = document.createElement('div');
+  tag.className = 'relabel'; tag.textContent = field.label;
+  el.appendChild(tag);
+
+  if (!field.locked) {
+    const handle = document.createElement('div');
+    handle.className = 'resize-handle';
+    el.appendChild(handle);
+    enableResize(handle, el, field);
+    enableDrag(el, field);
+    el.addEventListener('click', (e) => {
+      if (e.target === del || e.target.classList.contains('resize-handle')) return;
+      if (interactionMoved) { interactionMoved = false; return; }
+      openModalFor(field.id);
+    });
+  }
+  stage.appendChild(el);
+}
+
+function renderSuggestionBox(s, idx, pageNum) {
+  const el = document.createElement('div');
+  el.className = 'suggest';
+  el.style.left = ptToPx(s.xPt) + 'px'; el.style.top = ptToPx(s.yPt) + 'px';
+  el.style.width = ptToPx(s.wPt) + 'px'; el.style.height = ptToPx(s.hPt) + 'px';
+  el.textContent = 'detected — click to use';
+  el.addEventListener('click', () => {
+    const field = createField('signature', pageNum, s.xPt, s.yPt, s.wPt, s.hPt);
+    suggestions[pageNum].splice(idx, 1);
+    renderPage(currentPage);
+    openModalFor(field.id);
+  });
+  stage.appendChild(el);
+}
+
+// ---------- peer alignment / snapping ----------
+function computeSnap(field, pageFields) {
+  if (shiftHeld) return { x: field.xPt, y: field.yPt, guideX: null, guideY: null };
+  const thr = snapThresholdPt();
+  let bestX = null, bestY = null;
+  const sL = field.xPt, sR = field.xPt + field.wPt, sCx = field.xPt + field.wPt/2;
+  const sT = field.yPt, sB = field.yPt + field.hPt, sCy = field.yPt + field.hPt/2;
+  pageFields.forEach(o => {
+    if (o.id === field.id) return;
+    const oL=o.xPt, oR=o.xPt+o.wPt, oCx=o.xPt+o.wPt/2, oT=o.yPt, oB=o.yPt+o.hPt, oCy=o.yPt+o.hPt/2;
+    [[sL,oL,'left'],[sR,oR,'right'],[sCx,oCx,'centerx']].forEach(([a,b,kind]) => {
+      const d = Math.abs(a-b);
+      if (d <= thr && (!bestX || d < bestX.diff)) {
+        const value = kind==='left'?b : kind==='right'?(b-field.wPt) : (b-field.wPt/2);
+        bestX = { diff:d, value, guideAt:b };
+      }
+    });
+    [[sT,oT,'top'],[sB,oB,'bottom'],[sCy,oCy,'centery']].forEach(([a,b,kind]) => {
+      const d = Math.abs(a-b);
+      if (d <= thr && (!bestY || d < bestY.diff)) {
+        const value = kind==='top'?b : kind==='bottom'?(b-field.hPt) : (b-field.hPt/2);
+        bestY = { diff:d, value, guideAt:b };
+      }
+    });
+  });
+  return { x: bestX?bestX.value:field.xPt, y: bestY?bestY.value:field.yPt, guideX: bestX?bestX.guideAt:null, guideY: bestY?bestY.guideAt:null };
+}
+
+let dragState = null, resizeState = null, interactionMoved = false;
+let guideEls = [], snapEls = [], tooltipEl = null;
+
+function showGuides(field) {
+  hideGuides();
+  const v = document.createElement('div'); v.className = 'guide-v'; v.style.left = ptToPx(field.xPt) + 'px'; stage.appendChild(v);
+  const h = document.createElement('div'); h.className = 'guide-h'; h.style.top = ptToPx(field.yPt) + 'px'; stage.appendChild(h);
+  guideEls = [v, h];
+  tooltipEl = document.createElement('div'); tooltipEl.className = 'dim-tooltip'; stage.appendChild(tooltipEl);
+}
+function updateSnapLines(snap) {
+  snapEls.forEach(el => el.remove()); snapEls = [];
+  if (snap.guideX !== null) { const v = document.createElement('div'); v.className='snap-v'; v.style.left = ptToPx(snap.guideX)+'px'; stage.appendChild(v); snapEls.push(v); }
+  if (snap.guideY !== null) { const h = document.createElement('div'); h.className='snap-h'; h.style.top = ptToPx(snap.guideY)+'px'; stage.appendChild(h); snapEls.push(h); }
+}
+function updateTooltip(field) {
+  if (!tooltipEl) return;
+  const pageW = (pageSizesPt[field.page]||{w:612}).w, pageH = (pageSizesPt[field.page]||{h:792}).h;
+  tooltipEl.innerHTML = `left ${fmtUnit(field.xPt,unit)} · top ${fmtUnit(field.yPt,unit)}<br/>right ${fmtUnit(pageW-field.xPt-field.wPt,unit)} · bottom ${fmtUnit(pageH-field.yPt-field.hPt,unit)}`;
+  tooltipEl.style.left = (ptToPx(field.xPt)+ptToPx(field.wPt)+10)+'px';
+  tooltipEl.style.top = ptToPx(field.yPt)+'px';
+}
+function hideGuides() {
+  guideEls.forEach(el => el.remove()); guideEls = [];
+  snapEls.forEach(el => el.remove()); snapEls = [];
+  if (tooltipEl) { tooltipEl.remove(); tooltipEl = null; }
+}
+
+function enableDrag(el, field) {
+  el.addEventListener('mousedown', (e) => {
+    if (e.target.classList.contains('del') || e.target.classList.contains('resize-handle')) return;
+    interactionMoved = false;
+    const rect = stage.getBoundingClientRect();
+    dragState = { field, el, offsetX: e.clientX-rect.left-ptToPx(field.xPt), offsetY: e.clientY-rect.top-ptToPx(field.yPt) };
+    showGuides(field);
+    e.preventDefault();
+  });
+}
+function enableResize(handle, el, field) {
+  handle.addEventListener('mousedown', (e) => {
+    e.stopPropagation(); interactionMoved = false;
+    resizeState = { field, el, startX:e.clientX, startY:e.clientY, startWPx:ptToPx(field.wPt), startHPx:ptToPx(field.hPt) };
+    showGuides(field);
+  });
+}
+document.addEventListener('mousemove', (e) => {
+  if (dragState) {
+    interactionMoved = true;
+    const rect = stage.getBoundingClientRect();
+    let px = e.clientX-rect.left-dragState.offsetX, py = e.clientY-rect.top-dragState.offsetY;
+    px = Math.max(0, Math.min(px, canvas.width-ptToPx(dragState.field.wPt)));
+    py = Math.max(0, Math.min(py, canvas.height-ptToPx(dragState.field.hPt)));
+    dragState.field.xPt = px/renderScale; dragState.field.yPt = py/renderScale;
+    const pageFields = fields.filter(f => f.page===dragState.field.page && f.id!==dragState.field.id);
+    const snap = computeSnap(dragState.field, pageFields);
+    dragState.field.xPt = snap.x; dragState.field.yPt = snap.y;
+    dragState.el.style.left = ptToPx(snap.x)+'px'; dragState.el.style.top = ptToPx(snap.y)+'px';
+    guideEls[0].style.left = ptToPx(snap.x)+'px'; guideEls[1].style.top = ptToPx(snap.y)+'px';
+    updateSnapLines(snap);
+    updateTooltip(dragState.field);
+  } else if (resizeState) {
+    interactionMoved = true;
+    const dw = e.clientX-resizeState.startX, dh = e.clientY-resizeState.startY;
+    const newWPx = Math.max(30, resizeState.startWPx+dw), newHPx = Math.max(24, resizeState.startHPx+dh);
+    resizeState.field.wPt = newWPx/renderScale; resizeState.field.hPt = newHPx/renderScale;
+    resizeState.el.style.width = newWPx+'px'; resizeState.el.style.height = newHPx+'px';
+    updateTooltip(resizeState.field);
+  }
+});
+document.addEventListener('mouseup', () => {
+  const wasActive = dragState || resizeState;
+  dragState = null; resizeState = null;
+  hideGuides();
+  if (wasActive) refreshFieldList();
+});
+
+// ---------- placing new fields ----------
+stage.addEventListener('click', (e) => {
+  if (!placementType) return;
+  if (e.target !== canvas) return;
+  const rect = canvas.getBoundingClientRect();
+  const px = e.clientX-rect.left, py = e.clientY-rect.top;
+  const size = DEFAULT_SIZE[placementType];
+  let xPt = Math.max(0, (px/renderScale)-size.w/2);
+  let yPt = Math.max(0, (py/renderScale)-size.h/2);
+
+  if (!shiftHeld) {
+    const sameType = fields.filter(f => f.type === placementType);
+    if (sameType.length) xPt = sameType[sameType.length-1].xPt; // default-align X to the last matching field
+  }
+  const field = createField(placementType, currentPage, xPt, yPt, size.w, size.h);
+  placementType = null;
+  stage.classList.remove('placing');
+  renderPage(currentPage);
+  openModalFor(field.id);
+});
+
+function createField(type, page, xPt, yPt, wPt, hPt) {
+  const label = `${DEFAULT_LABEL[type]} ${fields.filter(f=>f.type===type).length + 1}`;
+  const field = { id: 'f'+(fieldSeq++), page, type, label, xPt, yPt, wPt, hPt, dataUrl:null, text:null, signedAt:null, locked:false };
+  fields.push(field);
+  refreshFieldList();
+  return field;
+}
+
+function removeField(id) { fields = fields.filter(f => f.id !== id); refreshFieldList(); renderPage(currentPage); }
+
+function alignField(field, mode) {
+  const pageW = (pageSizesPt[field.page]||{w:612}).w, pageH = (pageSizesPt[field.page]||{h:792}).h;
+  if (mode==='left') field.xPt = 0;
+  if (mode==='right') field.xPt = pageW-field.wPt;
+  if (mode==='centerH') field.xPt = (pageW-field.wPt)/2;
+  if (mode==='top') field.yPt = 0;
+  if (mode==='bottom') field.yPt = pageH-field.hPt;
+  if (mode==='centerV') field.yPt = (pageH-field.hPt)/2;
+  refreshFieldList();
+  if (field.page===currentPage) renderPage(currentPage);
+}
+
+function refreshFieldList() {
+  fieldListEl.innerHTML = '';
+  if (fields.length === 0) {
+    fieldListEl.innerHTML = '<li style="color:var(--ink-soft);font-size:0.8rem;">No fields placed yet.</li>';
+    updateExportState(); return;
+  }
+  fields.forEach(f => {
+    const li = document.createElement('li');
+    li.className = 'field-item' + (f.locked ? ' locked' : ((f.dataUrl||f.text) ? ' signed' : ''));
+    if (f.locked) {
+      li.innerHTML = `
+        <div class="row1"><span><span class="status-dot"></span><span class="label">${f.label}</span></span></div>
+        <div class="meta">page ${f.page} · ${f.type} · already signed${f.signedAt ? ' · '+f.signedAt.toLocaleString() : ''}</div>
+        ${f.text ? `<div class="meta">"${f.text}"</div>` : ''}
+        <div class="btnrow"><button class="gotoBtn">Go to</button><button class="delBtn">Stop tracking</button></div>`;
+      li.querySelector('.gotoBtn').addEventListener('click', () => { currentPage = f.page; renderPage(currentPage); });
+      li.querySelector('.delBtn').addEventListener('click', () => removeField(f.id));
+    } else {
+      li.innerHTML = `
+        <div class="row1"><span><span class="status-dot"></span><span class="label">${f.label}</span></span></div>
+        <div class="meta">page ${f.page} · ${f.type}${(f.dataUrl||f.text) ? ' · filled' : ' · empty'}</div>
+        <div class="align-row">
+          <button class="icon tiny ghost" data-align="left" title="Align left">⯇</button>
+          <button class="icon tiny ghost" data-align="centerH" title="Center horizontally">⯀</button>
+          <button class="icon tiny ghost" data-align="right" title="Align right">⯈</button>
+          <button class="icon tiny ghost" data-align="top" title="Align top">⯅</button>
+          <button class="icon tiny ghost" data-align="centerV" title="Center vertically">—</button>
+          <button class="icon tiny ghost" data-align="bottom" title="Align bottom">⯆</button>
+        </div>
+        <div class="xy-grid">
+          <div><label>X (from left)</label><input type="number" step="0.01" class="xIn" value="${ptToUnit(f.xPt,unit).toFixed(2)}"></div>
+          <div><label>Y (from top)</label><input type="number" step="0.01" class="yIn" value="${ptToUnit(f.yPt,unit).toFixed(2)}"></div>
+          <div><label>Width</label><input type="number" step="0.01" class="wIn" value="${ptToUnit(f.wPt,unit).toFixed(2)}"></div>
+          <div><label>Height</label><input type="number" step="0.01" class="hIn" value="${ptToUnit(f.hPt,unit).toFixed(2)}"></div>
+        </div>
+        <div class="btnrow">
+          <button class="fillBtn">${(f.dataUrl||f.text) ? 'Edit' : 'Fill'}</button>
+          <button class="gotoBtn">Go to</button>
+          <button class="delBtn">Remove</button>
+        </div>`;
+      li.querySelectorAll('[data-align]').forEach(b => b.addEventListener('click', () => alignField(f, b.dataset.align)));
+      li.querySelector('.xIn').addEventListener('change', (e) => { f.xPt = unitToPt(parseFloat(e.target.value)||0, unit); if(f.page===currentPage) renderPage(currentPage); });
+      li.querySelector('.yIn').addEventListener('change', (e) => { f.yPt = unitToPt(parseFloat(e.target.value)||0, unit); if(f.page===currentPage) renderPage(currentPage); });
+      li.querySelector('.wIn').addEventListener('change', (e) => { f.wPt = Math.max(10, unitToPt(parseFloat(e.target.value)||0, unit)); if(f.page===currentPage) renderPage(currentPage); });
+      li.querySelector('.hIn').addEventListener('change', (e) => { f.hPt = Math.max(10, unitToPt(parseFloat(e.target.value)||0, unit)); if(f.page===currentPage) renderPage(currentPage); });
+      li.querySelector('.fillBtn').addEventListener('click', () => openModalFor(f.id));
+      li.querySelector('.gotoBtn').addEventListener('click', () => { currentPage = f.page; renderPage(currentPage); });
+      li.querySelector('.delBtn').addEventListener('click', () => removeField(f.id));
+    }
+    fieldListEl.appendChild(li);
+  });
+  updateExportState();
+}
+
+function updateExportState() { exportBtn.disabled = !fields.some(f => f.dataUrl || f.text || f.locked); }
+
+// ---------- text-scan detection ----------
+scanBtn.addEventListener('click', async () => {
+  scanBtn.disabled = true; scanBtn.textContent = 'Scanning…';
+  let total = 0;
+  for (let p = 1; p <= numPages; p++) {
+    const page = await pdfDocProxy.getPage(p);
+    const viewport = page.getViewport({ scale: renderScale });
+    const content = await page.getTextContent();
+    const hits = [];
+    content.items.forEach(item => {
+      const str = (item.str||'').trim();
+      if (!str) return;
+      const looksLikeSignLine = /^_{4,}$/.test(str) || /sign(ature)?\s*here/i.test(str) || /^x[\s_]{3,}$/i.test(str);
+      if (looksLikeSignLine) {
+        const [vx, vy] = viewport.convertToViewportPoint(item.transform[4], item.transform[5]);
+        hits.push({ xPt: vx/renderScale, yPt: Math.max(0,(vy/renderScale)-60), wPt:220, hPt:60 });
+      }
+    });
+    if (hits.length) { suggestions[p] = (suggestions[p]||[]).concat(hits); total += hits.length; }
+  }
+  scanBtn.textContent = 'Scan page for "sign here" lines';
+  scanBtn.disabled = false;
+  detectSummary.style.display = 'block';
+  detectSummary.innerHTML = total>0 ? `Found <b>${total}</b> likely signature line${total>1?'s':''}.` : `No obvious signature lines detected. Place fields manually instead.`;
+  renderPage(currentPage);
+});
+
+// ---------- signature modal ----------
+const signOverlay = document.getElementById('signOverlay');
+const modalTitle = document.getElementById('modalTitle');
+const modalSub = document.getElementById('modalSub');
+const drawSection = document.getElementById('drawSection');
+const padCanvas = document.getElementById('padCanvas');
+const padCtx = padCanvas.getContext('2d');
+const nameInput = document.getElementById('nameInput');
+const nameLabel = document.getElementById('nameLabel');
+const namePreview = document.getElementById('namePreview');
+const fontPick = document.getElementById('fontPick');
+const sizeSlider = document.getElementById('sizeSlider');
+const sizeReadout = document.getElementById('sizeReadout');
+
+let currentFamily = fontPick.querySelector('button').dataset.family;
+let currentItalic = false;
+let currentSize = 54;
+
+function openModalFor(fieldId) {
+  activeFieldId = fieldId;
+  const field = fields.find(f => f.id === fieldId);
+  if (!field || field.locked) return;
+  const isDate = field.type === 'date';
+  modalTitle.textContent = field.label;
+  drawSection.style.display = isDate ? 'none' : 'block';
+  nameLabel.textContent = isDate ? 'Type the date' : 'Type the name to appear under it';
+  fontPick.style.display = isDate ? 'none' : 'flex';
+  document.getElementById('sizeSlider').parentElement.style.display = isDate ? 'none' : 'flex';
+  document.querySelectorAll('.modal label')[1].style.display = isDate ? 'none' : 'block';
+  nameInput.value = field.text || '';
+  if (isDate && !nameInput.value) nameInput.value = new Date().toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'});
+  modalSub.textContent = isDate ? 'This will be typeset directly onto the page.' : 'Draw on the pad, then type the name to go under it.';
+  updateNamePreview();
+  signOverlay.style.display = 'flex';
+  if (!isDate) setTimeout(setupPadCanvas, 0);
+}
+
+function setupPadCanvas() {
+  const rect = padCanvas.getBoundingClientRect();
+  padCanvas.width = rect.width*2; padCanvas.height = rect.height*2;
+  padCtx.setTransform(2,0,0,2,0,0);
+  padCtx.lineWidth = 2.4; padCtx.lineCap='round'; padCtx.lineJoin='round'; padCtx.strokeStyle='#1F2A24';
+  let drawing=false, last=null;
+  function pos(e){ const r=padCanvas.getBoundingClientRect(); return {x:e.clientX-r.left, y:e.clientY-r.top}; }
+  padCanvas.onpointerdown = (e) => { drawing=true; last=pos(e); padCanvas.setPointerCapture(e.pointerId); };
+  padCanvas.onpointermove = (e) => { if(!drawing) return; const p=pos(e); padCtx.beginPath(); padCtx.moveTo(last.x,last.y); padCtx.lineTo(p.x,p.y); padCtx.stroke(); last=p; };
+  padCanvas.onpointerup = () => drawing=false;
+  padCanvas.onpointerleave = () => drawing=false;
+}
+
+document.getElementById('clearPad').addEventListener('click', () => padCtx.clearRect(0,0,padCanvas.width,padCanvas.height));
+
+fontPick.querySelectorAll('button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    fontPick.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFamily = btn.dataset.family; currentItalic = btn.dataset.italic === '1';
+    updateNamePreview();
+  });
+});
+sizeSlider.addEventListener('input', () => { currentSize = parseInt(sizeSlider.value,10); sizeReadout.textContent = currentSize+'px'; updateNamePreview(); });
+nameInput.addEventListener('input', updateNamePreview);
+
+function updateNamePreview() {
+  namePreview.style.fontFamily = currentFamily;
+  namePreview.style.fontStyle = currentItalic ? 'italic' : 'normal';
+  namePreview.style.fontSize = currentSize + 'px';
+  namePreview.textContent = nameInput.value || '';
+}
+
+document.getElementById('cancelSign').addEventListener('click', closeModal);
+function closeModal() { signOverlay.style.display = 'none'; activeFieldId = null; }
+
+document.getElementById('saveSign').addEventListener('click', () => {
+  const field = fields.find(f => f.id === activeFieldId);
+  if (!field) return closeModal();
+  if (field.type === 'date') { field.text = nameInput.value.trim() || new Date().toLocaleDateString(); field.dataUrl = null; }
+  else { field.dataUrl = composeSignatureImage(field); field.text = nameInput.value.trim(); }
+  field.signedAt = new Date();
+  closeModal(); refreshFieldList(); renderPage(currentPage);
+});
+
+function composeSignatureImage(field) {
+  const W=900, H=320;
+  const out = document.createElement('canvas'); out.width=W; out.height=H;
+  const octx = out.getContext('2d');
+  octx.drawImage(padCanvas, 0,0,padCanvas.width,padCanvas.height, 30,10, W-60, H*0.6);
+  octx.strokeStyle = '#B0AA98'; octx.lineWidth = 2;
+  octx.beginPath(); octx.moveTo(30,H*0.68); octx.lineTo(W-30,H*0.68); octx.stroke();
+  octx.fillStyle = '#1F2A24';
+  octx.font = `${currentItalic?'italic ':''}${currentSize}px ${currentFamily}`;
+  octx.textBaseline = 'top';
+  octx.fillText(nameInput.value.trim() || field.label, 30, H*0.72);
+  return out.toDataURL('image/png');
+}
+
+// ---------- export ----------
+exportBtn.addEventListener('click', async () => {
+  exportBtn.disabled = true; exportBtn.textContent = 'Building PDF…';
+  try {
+    const { PDFDocument, StandardFonts, rgb } = PDFLib;
+    const pdfDoc = await PDFDocument.load(pdfBytesOriginal.slice(0));
+    const pages = pdfDoc.getPages();
+
+    for (const field of fields) {
+      if (field.locked) continue; // already burned into the page from a previous export
+      const page = pages[field.page - 1];
+      if (!page) continue;
+      const pageHeight = page.getHeight();
+      const xPdf = field.xPt, yPdf = pageHeight - field.yPt - field.hPt;
+      if (field.type === 'date' && field.text) {
+        page.drawText(field.text, { x:xPdf+4, y:yPdf+field.hPt/2-6, size:13 });
+      } else if (field.dataUrl) {
+        const base64 = field.dataUrl.split(',')[1];
+        const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+        const png = await pdfDoc.embedPng(bytes);
+        page.drawImage(png, { x:xPdf, y:yPdf, width:field.wPt, height:field.hPt });
+      }
+    }
+
+    // build + embed manifest for the next signer
+    const manifest = {
+      v: 1, rootHash, parentHash: loadedHash,
+      fields: fields.map(f => ({
+        page:f.page, type:f.type, label:f.label,
+        xPt:Math.round(f.xPt*100)/100, yPt:Math.round(f.yPt*100)/100,
+        wPt:Math.round(f.wPt*100)/100, hPt:Math.round(f.hPt*100)/100,
+        filled: !!(f.locked || f.dataUrl || f.text),
+        locked: !!(f.locked || f.dataUrl || f.text),
+        text: f.text || null,
+        signedAt: f.signedAt ? f.signedAt.toISOString() : null
+      }))
+    };
+    pdfDoc.setSubject(MANIFEST_PREFIX + b64EncodeUnicode(JSON.stringify(manifest)));
+    pdfDoc.setTitle('Signed via NisSign');
+
+    // signing certificate page
+    const helv = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    const helvBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    const cert = pdfDoc.addPage([612, 792]);
+    let y = 740;
+    cert.drawText('NisSign — Signing Record', { x:50, y, size:18, font:helvBold }); y -= 24;
+    cert.drawText(`Generated locally in the signer's browser · ${new Date().toLocaleString()}`, { x:50, y, size:9, font:helv, color:rgb(0.36,0.42,0.38) }); y -= 20;
+    cert.drawText(`Root document fingerprint: ${rootHash}`, { x:50, y, size:8, font:helv }); y -= 12;
+    cert.drawText(`This session opened:       ${loadedHash}`, { x:50, y, size:8, font:helv }); y -= 22;
+    cert.drawText('Fields:', { x:50, y, size:12, font:helvBold }); y -= 18;
+    fields.forEach(f => {
+      const status = f.locked ? 'previously signed' : (f.dataUrl||f.text ? 'signed this session' : 'left empty');
+      const line = `${f.label} (page ${f.page}, ${f.type}) — ${status}${f.text ? ' — "'+f.text+'"' : ''}${f.signedAt ? ' — '+f.signedAt.toLocaleString() : ''}`;
+      cert.drawText(line.length>105 ? line.slice(0,105)+'…' : line, { x:54, y, size:9, font:helv });
+      y -= 15;
+      if (y < 60) y = 740;
+    });
+    cert.drawText('This record is a local integrity fingerprint, not a certified digital signature.', { x:50, y:40, size:8, font:helv, color:rgb(0.36,0.42,0.38) });
+
+    const outBytes = await pdfDoc.save();
+    const finalHashHex = await sha256Hex(outBytes);
+
+    const blob = new Blob([outBytes], { type:'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'signed-document.pdf';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+
+    showSummary(finalHashHex);
+  } catch (err) {
+    console.error(err);
+    alert('Something went wrong building the PDF: ' + err.message);
+  } finally {
+    exportBtn.textContent = 'Export signed PDF';
+    updateExportState();
+  }
+});
+
+function showSummary(finalHashHex) {
+  document.getElementById('sumRootHash').textContent = rootHash;
+  document.getElementById('sumParentHash').textContent = loadedHash;
+  document.getElementById('sumFinalHash').textContent = finalHashHex;
+  const listEl = document.getElementById('sumFieldList');
+  listEl.innerHTML = fields.map(f => `${f.label} · page ${f.page} · ${f.type} · ${f.locked?'previously signed':(f.dataUrl||f.text?'signed now':'left empty')}${f.text?' · "'+f.text+'"':''}`).join('<br/>');
+  document.getElementById('summaryOverlay').style.display = 'flex';
+  document.getElementById('copySummary').onclick = () => {
+    const report = `NisSign signing report\nRoot fingerprint: ${rootHash}\nOpened fingerprint: ${loadedHash}\nProduced fingerprint: ${finalHashHex}\n\n` +
+      fields.map(f => `${f.label} (page ${f.page}, ${f.type}): ${f.locked?'previously signed':(f.dataUrl||f.text?'signed now':'left empty')}${f.text?' — "'+f.text+'"':''}`).join('\n');
+    navigator.clipboard.writeText(report).catch(()=>{});
+  };
+}
+document.getElementById('closeSummary').addEventListener('click', () => document.getElementById('summaryOverlay').style.display = 'none');
+</script>
+</body>
+</html>
