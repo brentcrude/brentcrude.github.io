@@ -1,0 +1,100 @@
+:root {
+    --bg: #f9f9f9;
+    --fg: #111;
+    --staff-line-color: #333;
+    --measure-width: 320px;
+    --line-spacing: 20px;
+}
+
+* { box-sizing: border-box; user-select: none; }
+
+body {
+    margin: 0; padding: 0;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    background-color: var(--bg);
+    color: var(--fg);
+    overflow-x: auto;
+}
+
+#toolbar {
+    position: fixed; top: 0; left: 0; width: 100%;
+    background: #fff; border-bottom: 2px solid var(--fg);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    display: flex; flex-wrap: wrap; gap: 15px;
+    padding: 10px 20px; z-index: 1000; align-items: center;
+}
+
+.tool-group {
+    display: flex; gap: 5px; align-items: center;
+    border-right: 2px solid #ccc; padding-right: 15px;
+}
+.tool-group:last-child { border-right: none; }
+
+button {
+    background: #fff; color: var(--fg); border: 1px solid #aaa;
+    border-radius: 4px; padding: 6px 12px; font-size: 14px;
+    cursor: pointer; font-weight: 600; transition: all 0.2s ease;
+}
+button:hover { background: #eee; }
+button.active { background: var(--fg); color: #fff; border-color: var(--fg); }
+button i { font-family: serif; }
+
+.input-wrapper { display: flex; align-items: center; gap: 5px; font-size: 14px; font-weight: bold;}
+input[type="number"], select {
+    padding: 4px; border: 1px solid #aaa; border-radius: 4px; font-size: 14px;
+}
+input[type="number"] { width: 60px; }
+
+#score {
+    margin-top: 120px; padding: 40px; display: flex; flex-direction: column; gap: 80px; min-width: max-content;
+}
+
+.track-container { display: flex; align-items: flex-start; }
+
+.clef-time-area {
+    width: 100px; height: 100px; position: relative; border-right: 2px solid var(--fg); flex-shrink: 0;
+}
+.clef {
+    position: absolute; left: 10px; top: 10px; font-size: 65px;
+    font-family: 'Times New Roman', serif; pointer-events: none;
+}
+
+/* Key Signature Styling */
+.key-sig {
+    position: absolute; left: 45px; top: 20px; font-size: 24px;
+    font-family: 'Noto Music', sans-serif; pointer-events: none; line-height: 1;
+}
+
+.time-sig {
+    position: absolute; left: 75px; top: 25px; font-size: 20px; font-weight: bold;
+    font-family: 'Times New Roman', serif; line-height: 20px; text-align: center; pointer-events: none;
+}
+.time-sig div { margin-bottom: 2px; }
+
+.track {
+    position: relative; height: 80px; width: calc(var(--measure-width) * 4);
+    margin-top: 25px; border-top: 1px solid var(--staff-line-color); border-bottom: 1px solid var(--staff-line-color);
+    background-image: 
+        repeating-linear-gradient(to bottom, transparent, transparent 19px, var(--staff-line-color) 19px, var(--staff-line-color) 20px),
+        repeating-linear-gradient(to right, transparent, transparent calc(var(--measure-width) - 2px), var(--staff-line-color) calc(var(--measure-width) - 2px), var(--staff-line-color) var(--measure-width));
+    background-size: 100% var(--line-spacing), var(--measure-width) 100%;
+}
+
+.note {
+    position: absolute; cursor: grab; transform: translate(-50%, -60%);
+    font-size: 45px; line-height: 0; pointer-events: auto;
+    font-family: 'Noto Music', sans-serif; color: var(--fg); z-index: 10; display: flex; justify-content: center; align-items: center;
+}
+.note:active { cursor: grabbing; }
+
+.ledger {
+    position: absolute; height: 2px; width: 24px; background: var(--fg);
+    left: 50%; transform: translateX(-50%); z-index: -1; pointer-events: none;
+}
+
+.modifiers {
+    position: absolute; font-size: 22px; font-family: 'Noto Music', sans-serif; font-weight: normal; color: var(--fg);
+}
+.accidental { left: -18px; top: -14px; }
+.articulation { top: -25px; left: -2px; font-weight: bold; }
+.dynamic { bottom: -45px; left: -10px; font-weight: bold; font-style: italic; font-size: 18px; }
