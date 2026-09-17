@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimalist Composer Pro</title>
+    <!-- Google Fonts for Musical Symbols -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Music&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="toolbar">
+    <div class="tool-group" id="playback-tools">
+        <button id="btn-play">▶ Play</button>
+        <button id="btn-stop">■ Stop</button>
+        <div class="input-wrapper">
+            <label for="tempo-input">BPM:</label>
+            <input type="number" id="tempo-input" value="100" min="40" max="240">
+        </div>
+    </div>
+    
+    <div class="tool-group" id="note-tools">
+        <button class="tool-btn active" data-type="quarter" data-char="𝅘𝅥" data-dur="1">Quarter 𝅘𝅥</button>
+        <button class="tool-btn" data-type="eighth" data-char="𝅘𝅥𝅮" data-dur="0.5">Eighth 𝅘𝅥𝅮</button>
+        <button class="tool-btn" data-type="half" data-char="𝅗𝅥" data-dur="2">Half 𝅗𝅥</button>
+        <button class="tool-btn" data-type="whole" data-char="𝅝" data-dur="4">Whole 𝅝</button>
+        <button class="tool-btn" data-type="rest-quarter" data-char="𝄽" data-dur="1">Rest 𝄽</button>
+    </div>
+
+    <div class="tool-group" id="modifier-tools">
+        <button class="tool-btn" data-type="accidental" data-val="♯">♯</button>
+        <button class="tool-btn" data-type="accidental" data-val="♭">♭</button>
+        <button class="tool-btn" data-type="accidental" data-val="♮">♮</button>
+        <button class="tool-btn" data-type="articulation" data-val=">">></button>
+        <button class="tool-btn" data-type="articulation" data-val="·">·</button>
+        <button class="tool-btn" data-type="dynamic" data-val="f"><i>f</i></button>
+        <button class="tool-btn" data-type="dynamic" data-val="p"><i>p</i></button>
+    </div>
+
+    <div class="tool-group" id="settings-tools">
+        <div class="input-wrapper">
+            <label for="key-sig-select">Key:</label>
+            <select id="key-sig-select">
+                <option value="C">C Maj (No ♯/♭)</option>
+                <option value="G">G Maj (1 ♯)</option>
+                <option value="D">D Maj (2 ♯)</option>
+                <option value="F">F Maj (1 ♭)</option>
+                <option value="Bb">Bb Maj (2 ♭)</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="tool-group" id="action-tools">
+        <button class="tool-btn" data-type="delete">Eraser</button>
+        <button id="btn-add-measure">+ Measure</button>
+        <button id="btn-del-measure">- Measure</button>
+        <button id="btn-add-track">+ Track</button>
+        <button id="btn-del-track">- Track</button>
+    </div>
+</div>
+
+<div id="score"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
