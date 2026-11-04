@@ -22,14 +22,34 @@ window.PROJECTS = [
     linkLabel: null
   },
   {
+    name: "FaCSim",
+    status: "building",
+    statusLabel: "New",
+    blurb:
+      "A matchup simulator and lineup optimizer for the Nations Draft fantasy-countries league. It enumerates every opponent lineup exactly instead of sampling, then searches for the starters, stance and annul that maximize your win odds.",
+    tags: ["Exact enumeration", "Optimizer", "Single-file HTML"],
+    href: "/apps/FaCSim/dist/index.html",
+    linkLabel: "Open the simulator"
+  },
+  {
     name: "NisSign",
     status: "active",
     statusLabel: "Live & free",
     blurb:
       "Sign a PDF without uploading it anywhere. Draw your signature, place fields, and export — entirely in the browser. Free, no account, and nothing is ever sent to a server, because there is no server to send it to.",
     tags: ["Free", "Runs fully local", "Single-file HTML/CSS/JS", "Canvas"],
-    href: "nissign/",
+    href: "/nissign/",
     linkLabel: "Open the tool"
+  },
+  {
+    name: "Polytrack Codes",
+    status: "active",
+    statusLabel: "Live",
+    blurb:
+      "A shared library of Polytrack track codes, each labeled stable or dev so it lands in the right game build. Search, filter and copy.",
+    tags: ["Community", "Search & filter", "Stable / dev"],
+    href: "/PolyTrack/",
+    linkLabel: "Open the library"
   },
   {
     name: "Blackjack AI",
