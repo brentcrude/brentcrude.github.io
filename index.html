@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>brentcrude — developer</title>
-<meta name="description" content="brentcrude is a developer building browser-first, local-first tools: audio-to-notation software, browsing filters, and small useful things with no unnecessary backend.">
+<title>brentcrude — apps &amp; tools</title>
+<meta name="description" content="Small, finished software that runs in your browser: a fantasy-league simulator, a private PDF signer, a Polytrack code library and more. No accounts, nothing to install.">
 <meta name="author" content="brentcrude">
 <meta name="theme-color" content="#0b0d0e">
 
 <meta property="og:type" content="website">
-<meta property="og:title" content="brentcrude — developer">
-<meta property="og:description" content="Browser-first, local-first software. Audio-to-notation, browsing filters, and small useful tools.">
+<meta property="og:title" content="brentcrude — apps &amp; tools">
+<meta property="og:description" content="Small, finished software that runs in your browser. No accounts, nothing to install.">
 <meta property="og:url" content="https://knerd.tech/">
 <meta name="twitter:card" content="summary">
 
@@ -19,19 +19,21 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/site.css">
+<!-- root-relative so every page (and the 404) shares one stylesheet and one nav -->
+<link rel="stylesheet" href="/assets/css/site.css">
 </head>
 <body>
 
 <header class="site-head">
   <div class="wrap">
-    <a class="brand" href="#top"><span class="tilde">~/</span>brentcrude<span class="caret" aria-hidden="true"></span></a>
+    <a class="brand" href="/"><span class="tilde">~/</span>brentcrude<span class="caret" aria-hidden="true"></span></a>
     <nav class="site-nav" aria-label="Main">
-      <a href="#about">About</a>
-      <a href="#work">Projects</a>
-      <a href="#nissign">NisSign</a>
-      <a href="#stack">Stack</a>
-      <a class="archived" href="legacy/">Archive</a>
+      <a href="/" aria-current="page">Home</a>
+      <a href="/apps/">Apps</a>
+      <a href="/nissign/">NisSign</a>
+      <a href="/PolyTrack/">PolyTrack</a>
+      <a href="/about/">About</a>
+      <a class="ext" href="https://github.com/brentcrude" rel="noopener">GitHub</a>
     </nav>
   </div>
 </header>
@@ -39,177 +41,65 @@
 <main class="shell" id="top">
 
   <!-- ============ hero ============ -->
-  <section class="hero">
+  <section class="hero hero--home">
     <div class="wrap">
-      <p class="status-line"><span class="pulse" aria-hidden="true"></span>Currently building &middot; hum-to-score &amp; Warden</p>
       <h1>brentcrude</h1>
-      <p class="role"><b>Developer.</b> Browser-first tools, self-hosted software, and the occasional rabbit hole.</p>
+      <p class="role">Apps and tools for the browser.</p>
       <p class="bio">
-        I build things end to end and keep them <strong>small on purpose</strong> — usually a single page,
-        a single file, or a single machine. Favourite problems live close to the metal of the browser:
-        audio, extensions, offline-first data, and anything where a backend would only be a liability.
+        Small, finished software that runs on your own device. No accounts, no backend, nothing to install.
       </p>
       <div class="actions">
-        <a class="btn primary" href="#work">See what I'm building<span class="arw" aria-hidden="true">↓</span></a>
-        <a class="btn" href="https://github.com/brentcrude" rel="noopener">GitHub<span class="arw" aria-hidden="true">↗</span></a>
+        <a class="btn primary" href="/apps/">Browse all apps<span class="arw" aria-hidden="true">&rarr;</span></a>
+        <a class="btn" href="/about/">About</a>
       </div>
     </div>
   </section>
 
-  <!-- ============ about ============ -->
-  <section id="about">
+  <!-- ============ featured ============ -->
+  <section id="featured" class="featured">
     <div class="wrap">
-      <p class="eyebrow">About</p>
-      <div class="about-grid">
-        <div>
-          <h2>Fewer moving parts, more finished work.</h2>
-          <p>
-            Most of what I write starts as a personal annoyance and ends as something self-contained.
-            A humming-to-sheet-music tool that runs entirely in the browser. A browsing filter that
-            deliberately has no server, because browsing history should not live on somebody else's
-            computer. A document signer that is one HTML file.
-          </p>
-          <p>
-            The through-line is <strong>local-first</strong>: keep the data where the user is, keep the
-            dependency list boring, and make the thing actually finish. I care more about a tool that gets
-            used than an architecture that looks impressive in a diagram.
-          </p>
-        </div>
-        <ul class="facts">
-          <li><span class="k">Focus</span><span class="v">Browser &amp; local-first</span></li>
-          <li><span class="k">Writes</span><span class="v">Python, JavaScript, HTML/CSS</span></li>
-          <li><span class="k">Shipping</span><span class="v">hum-to-score, Warden</span></li>
-          <li><span class="k">Also</span><span class="v"><a class="link-arrow" href="legacy/">older experiments</a></span></li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ projects ============ -->
-  <section id="work">
-    <div class="wrap">
-      <p class="eyebrow">Projects</p>
       <div class="section-head">
-        <h2>A few things in flight</h2>
-        <span class="counter" aria-hidden="true"><b id="pIndex">01</b> / <span id="pTotal">04</span></span>
+        <div>
+          <p class="eyebrow">Featured</p>
+          <h2>Start here</h2>
+        </div>
+        <a class="link-arrow" href="/apps/">All apps <span aria-hidden="true">&rarr;</span></a>
       </div>
 
-      <div class="panel" id="panel" tabindex="0" aria-roledescription="carousel" aria-label="Projects">
-        <div class="stage" id="stage" aria-live="polite"></div>
+      <div class="app-grid">
 
-        <div class="panel-foot">
-          <div class="dots" id="dots" role="tablist" aria-label="Choose a project"></div>
-          <span class="rotator-note" id="rotatorNote" aria-live="polite"></span>
-          <div class="controls">
-            <button type="button" class="ctrl" id="prev" aria-label="Previous project">&larr;</button>
-            <button type="button" class="ctrl" id="playPause" aria-label="Pause auto-rotation" aria-pressed="false">&#10074;&#10074;</button>
-            <button type="button" class="ctrl" id="next" aria-label="Next project">&rarr;</button>
-          </div>
-        </div>
+        <a class="app-card" href="/apps/FaCSim/dist/index.html">
+          <div class="app-top"><span class="app-path">/apps/FaCSim</span><span class="status status--building"><i aria-hidden="true"></i>New</span></div>
+          <h3>FaCSim</h3>
+          <p>Matchup simulator and lineup optimizer for the Nations Draft fantasy-countries league. Exact win odds, no random sampling.</p>
+          <ul class="tags"><li>Simulator</li><li>Optimizer</li><li>Works offline</li></ul>
+          <span class="app-go">Open FaCSim <span aria-hidden="true">&rarr;</span></span>
+        </a>
 
-        <div class="progress" aria-hidden="true"><span id="progress"></span></div>
-      </div>
+        <a class="app-card" href="/nissign/">
+          <div class="app-top"><span class="app-path">/nissign</span><span class="status status--active"><i aria-hidden="true"></i>Live</span></div>
+          <h3>NisSign</h3>
+          <p>Sign a PDF without uploading it. Free, no account, and nothing leaves your device because there is no server behind it.</p>
+          <ul class="tags"><li>Free</li><li>Runs locally</li><li>PDF</li></ul>
+          <span class="app-go">Open NisSign <span aria-hidden="true">&rarr;</span></span>
+        </a>
 
-      <noscript>
-        <ul class="noscript-list">
-          <li>hum-to-score — hum a melody, get written music back (music notation editor in the browser)</li>
-          <li>Warden — self-hosted, family-safe browsing filter with a local admin dashboard</li>
-          <li>NisSign — free PDF signing tool that runs entirely on your own device (<a href="nissign/">open it</a>)</li>
-          <li>Blackjack AI — blackjack-playing agent trained on logged hand data</li>
-        </ul>
-      </noscript>
-    </div>
-  </section>
+        <a class="app-card" href="/PolyTrack/">
+          <div class="app-top"><span class="app-path">/PolyTrack</span><span class="status status--active"><i aria-hidden="true"></i>Live</span></div>
+          <h3>Polytrack Codes</h3>
+          <p>Share and find Polytrack track codes. Every code is labeled stable or dev, so it lands in the right game build.</p>
+          <ul class="tags"><li>Community</li><li>Search &amp; filter</li><li>Stable / dev</li></ul>
+          <span class="app-go">Open Polytrack Codes <span aria-hidden="true">&rarr;</span></span>
+        </a>
 
-  <!-- ============ nissign ============ -->
-  <section id="nissign" class="feature">
-    <div class="wrap">
-      <p class="eyebrow">Free tool &middot; no account &middot; nothing uploaded</p>
-      <div class="feature-card">
-        <div class="feature-main">
-          <span class="badge">Free forever</span>
-          <h2>NisSign — sign a PDF that never leaves your machine</h2>
-          <p class="feature-lede">
-            Drop in a PDF, place your signature, initials and date fields, draw on the pad, and export a
-            signed document. It runs entirely in your browser &mdash; there is no upload step, because there
-            is no server behind it at all.
-          </p>
-          <ul class="feature-points">
-            <li><b>Free, with nothing withheld.</b> No account, no sign-up, no trial, no watermark on the
-              export, no paid tier waiting at the end.</li>
-            <li><b>Nothing is sent to a server.</b> The PDF you open, every stroke you draw and the file you
-              export stay on your own device. Nothing is uploaded, because there is nowhere to upload it to.</li>
-            <li><b>Private by architecture, not by promise.</b> No backend means no document store to breach
-              and no audit log of what you signed. Close the tab and it is gone.</li>
-          </ul>
-          <div class="actions">
-            <a class="btn primary" href="nissign/" target="_blank" rel="noopener">Open NisSign<span class="arw" aria-hidden="true">↗</span></a>
-            <a class="btn" href="https://github.com/brentcrude" rel="noopener">More tools<span class="arw" aria-hidden="true">↗</span></a>
-          </div>
-        </div>
+        <a class="app-card" href="/apps/alphabetgame/">
+          <div class="app-top"><span class="app-path">/apps/alphabetgame</span><span class="status status--active"><i aria-hidden="true"></i>Live</span></div>
+          <h3>Alphabet Game</h3>
+          <p>A 60-second letter-recognition game for toddlers. The grown-up grades each answer; the game keeps score and a high score.</p>
+          <ul class="tags"><li>Game</li><li>Kids</li><li>Single page</li></ul>
+          <span class="app-go">Play <span aria-hidden="true">&rarr;</span></span>
+        </a>
 
-        <aside class="privacy" aria-label="NisSign privacy guarantees">
-          <h3>Local by design</h3>
-          <ul class="privacy-list">
-            <li><span class="k">Cost</span><span class="v yes">Free</span></li>
-            <li><span class="k">Sign-up</span><span class="v yes">Not required</span></li>
-            <li><span class="k">Uploads to a server</span><span class="v yes">None</span></li>
-            <li><span class="k">Document stored elsewhere</span><span class="v yes">Never</span></li>
-            <li><span class="k">Tracking or analytics</span><span class="v yes">None</span></li>
-            <li><span class="k">Close the tab</span><span class="v yes">Everything wiped</span></li>
-          </ul>
-          <p class="fineprint">
-            The PDF engine loads from a public CDN when you first open the tool; your document is never part
-            of that request. NisSign is a local signing tool with an honest integrity fingerprint &mdash; not a
-            certificate-backed e-signature. It says so itself, in its own security notes.
-          </p>
-        </aside>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ stack ============ -->
-  <section id="stack">
-    <div class="wrap">
-      <p class="eyebrow">Tooling</p>
-      <h2>What I reach for</h2>
-      <div class="stack-grid">
-        <div class="stack-card">
-          <h3>Languages</h3>
-          <ul>
-            <li>Python</li>
-            <li>JavaScript</li>
-            <li>HTML / CSS</li>
-            <li>Bash</li>
-          </ul>
-        </div>
-        <div class="stack-card">
-          <h3>Browser</h3>
-          <ul>
-            <li>Chrome MV3 &amp; Firefox extensions</li>
-            <li>declarativeNetRequest</li>
-            <li>Service workers</li>
-            <li>Canvas &amp; Web Audio</li>
-          </ul>
-        </div>
-        <div class="stack-card">
-          <h3>Data &amp; services</h3>
-          <ul>
-            <li>pandas &amp; CSV pipelines</li>
-            <li>Supabase</li>
-            <li>REST / market-data APIs</li>
-            <li>Streamlit</li>
-          </ul>
-        </div>
-        <div class="stack-card">
-          <h3>Formats</h3>
-          <ul>
-            <li>MusicXML &amp; MIDI</li>
-            <li>PDF export</li>
-            <li>Static sites, no build step</li>
-            <li>Local storage &amp; offline data</li>
-          </ul>
-        </div>
       </div>
     </div>
   </section>
@@ -220,15 +110,13 @@
   <div class="wrap">
     <span>&copy; 2026 brentcrude &middot; hand-written HTML, CSS &amp; JS, no tracker</span>
     <div class="foot-links">
+      <a href="/about/">About</a>
       <a href="https://github.com/brentcrude" rel="noopener">GitHub</a>
-      <a href="nissign/" target="_blank" rel="noopener">NisSign</a>
-      <a href="legacy/">Archive</a>
+      <a href="/legacy/">Archive</a>
       <a href="https://github.com/brentcrude/brentcrude.github.io" rel="noopener">Source</a>
     </div>
   </div>
 </footer>
 
-<script src="assets/js/projects.js"></script>
-<script src="assets/js/main.js"></script>
 </body>
 </html>
